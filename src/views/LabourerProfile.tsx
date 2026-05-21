@@ -1,0 +1,232 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import { ArrowLeft, Edit3, Power } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { Card, CardHeader } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Spinner } from '@/components/ui/Spinner';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Drawer } from '@/components/ui/Drawer';
+import { DeleteWithReasonModal } from '@/components/ui/DeleteWithReasonModal';
+import { LabourerForm } from '@/components/labourers/LabourerForm';
+import { ProfileCard } from '@/components/labourers/ProfileCard';
+import { SalaryHistoryTable } from '@/components/labourers/SalaryHistoryTable';
+import { WageChangeModal } from '@/components/labourers/WageChangeModal';
+import { AttendanceCalendar } from '@/components/attendance/AttendanceCalendar';
+import { AttendanceHistoryTable } from '@/components/attendance/AttendanceHistoryTable';
+import { EditAttendanceModal } from '@/components/attendance/EditAttendanceModal';
+import { useLabourerEdit } from '@/hooks/useLabourerEdit';
+import { useAttendanceActions } from '@/hooks/useAttendanceActions';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
+import { useToast } from '@/context/ToastContext';
+import type { AttendanceRecord, AttendanceStatus, Labourer, MonthlySalary } from '@/types/database';
+
+export function LabourerProfilePage() {
+  const params = useParams<{ id: string }>();
+  const id = params.id;
+  const router = useRouter();
+  const { isAdmin } = useAuth();
+  const toast = useToast();
+
+  const [labourer, setLabourer] = useState<Labourer | null>(null);
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
+  const [salaries, setSalaries] = useState<MonthlySalary[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // History filter state
+  const [historyFromDate, setHistoryFromDate] = useState('');
+  const [historyToDate, setHistoryToDate] = useState('');
+  const [historyStatus, setHistoryStatus] = useState<AttendanceStatus | 'all'>('all');
+
+  const load = async () => {
+    if (!id) return;
+    setLoading(true);
+    const [lab, att, sal] = await Promise.all([
+      supabase.from('labourers').select('*').eq('id', id).single(),
+      supabase.from('attendance').select('*').eq('labourer_id', id).order('date', { ascending: false }),
+      supabase
+        .from('monthly_salaries')
+        .select('*')
+        .eq('labourer_id', id)
+        .order('year', { ascending: false })
+        .order('month', { ascending: false }),
+    ]);
+    if (lab.error) toast.error(`Could not load: ${lab.error.message}`);
+    setLabourer((lab.data as Labourer) ?? null);
+    setAttendance((att.data as AttendanceRecord[]) ?? []);
+    setSalaries((sal.data as MonthlySalary[]) ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const edit = useLabourerEdit(labourer, load);
+  const att = useAttendanceActions(labourer, load);
+
+  const currentMonthSalary = useMemo(() => (salaries.length ? salaries[0] : null), [salaries]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-12">
+        <Spinner label="Loading profile…" />
+      </div>
+    );
+  }
+  if (!labourer) {
+    return (
+      <div>
+        <PageHeader title="Labourer not found" />
+        <EmptyState
+          title="This labourer could not be found"
+          description="It may have been removed or you don't have access."
+          action={
+            <Button onClick={() => router.push('/labourers')} variant="secondary">
+              <ArrowLeft className="h-4 w-4" /> Back to list
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <PageHeader
+        title={labourer.name}
+        description={`Member since ${labourer.joining_date}`}
+        breadcrumbs={
+          <Link href="/labourers" className="inline-flex items-center gap-1 hover:text-brand-600">
+            <ArrowLeft className="h-3 w-3" /> Labourers
+          </Link>
+        }
+        action={
+          <>
+            <Button variant="secondary" onClick={() => edit.setEditOpen(true)} leftIcon={<Edit3 className="h-4 w-4" />}>
+              Edit
+            </Button>
+            <Button
+              variant={labourer.is_active ? 'danger' : 'success'}
+              onClick={() => edit.setDeactivateOpen(true)}
+              leftIcon={<Power className="h-4 w-4" />}
+            >
+              {labourer.is_active ? 'Deactivate' : 'Reactivate'}
+            </Button>
+          </>
+        }
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <ProfileCard labourer={labourer} currentMonthSalary={currentMonthSalary} />
+        <Card className="lg:col-span-2">
+          <CardHeader
+            title="Attendance calendar"
+            description={isAdmin ? 'Click any day to edit. Reason required.' : 'View attendance by month.'}
+          />
+          <AttendanceCalendar
+            records={attendance}
+            joiningDate={labourer.joining_date}
+            isAdmin={isAdmin}
+            onEdit={att.openEditAttendance}
+          />
+        </Card>
+      </div>
+
+      <AttendanceHistoryTable
+        records={attendance}
+        isAdmin={isAdmin}
+        fromDate={historyFromDate}
+        toDate={historyToDate}
+        status={historyStatus}
+        onFromDateChange={setHistoryFromDate}
+        onToDateChange={setHistoryToDate}
+        onStatusChange={setHistoryStatus}
+        onEdit={(r) => att.openEditAttendance(r.date, r)}
+        onDelete={(r) => att.setDeleteAttendance({ open: true, record: r, reason: '' })}
+      />
+
+      <SalaryHistoryTable salaries={salaries} />
+
+      <Drawer
+        open={edit.editOpen}
+        onClose={() => edit.setEditOpen(false)}
+        title="Edit labourer"
+        description="Update name, phone, daily wage or joining date."
+      >
+        <LabourerForm
+          defaultValues={{
+            name: labourer.name,
+            phone: labourer.phone ?? '',
+            designation: labourer.designation ?? '',
+            daily_wage: Number(labourer.daily_wage),
+            advance: Number(labourer.advance ?? 0),
+            joining_date: labourer.joining_date,
+            is_active: labourer.is_active,
+          }}
+          onSubmit={edit.handleEditSubmit}
+          submitting={edit.savingEdit}
+          submitLabel="Save changes"
+        />
+      </Drawer>
+
+      <ConfirmDialog
+        open={edit.joiningPrompt.open}
+        title="Change joining date?"
+        description="Changing the joining date may affect past attendance records and which days a labourer appears on. Past records are preserved but their interpretation may shift. Proceed?"
+        confirmLabel="Yes, change joining date"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={edit.confirmJoiningChange}
+        onCancel={() => edit.setJoiningPrompt({ open: false })}
+      />
+
+      <WageChangeModal
+        open={edit.wagePrompt.open}
+        newWage={edit.wagePrompt.newWage}
+        busy={edit.savingEdit}
+        onCancel={() => edit.setWagePrompt({ open: false })}
+        onApply={edit.applyWageChange}
+      />
+
+      <ConfirmDialog
+        open={edit.deactivateOpen}
+        title={labourer.is_active ? `Deactivate ${labourer.name}?` : `Reactivate ${labourer.name}?`}
+        description={
+          labourer.is_active
+            ? `${labourer.name} will no longer appear in future attendance sheets. Their past records will be preserved.`
+            : `${labourer.name} will appear in the daily attendance list again.`
+        }
+        confirmLabel={labourer.is_active ? 'Deactivate' : 'Reactivate'}
+        variant={labourer.is_active ? 'danger' : 'primary'}
+        onConfirm={edit.handleDeactivate}
+        onCancel={() => edit.setDeactivateOpen(false)}
+      />
+
+      <EditAttendanceModal
+        open={att.editAttendance.open}
+        date={att.editAttendance.date}
+        current={att.editAttendance.current}
+        onClose={() => att.setEditAttendance({ open: false })}
+        onSave={att.submitEditAttendance}
+        busy={att.savingAttendance}
+      />
+
+      <DeleteWithReasonModal
+        open={att.deleteAttendance.open}
+        title="Delete attendance record?"
+        reason={att.deleteAttendance.reason}
+        busy={att.deletingAttendance}
+        onReasonChange={(v) => att.setDeleteAttendance({ ...att.deleteAttendance, reason: v })}
+        onCancel={() => att.setDeleteAttendance({ open: false, reason: '' })}
+        onConfirm={att.handleDeleteAttendance}
+      />
+    </div>
+  );
+}
