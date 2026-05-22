@@ -7,12 +7,18 @@ export function Card({
   className,
   children,
   padded = true,
+  hover = false,
 }: {
   className?: string;
   children: ReactNode;
   padded?: boolean;
+  hover?: boolean;
 }) {
-  return <div className={cn('card', padded && 'p-5', className)}>{children}</div>;
+  return (
+    <div className={cn('card', padded && 'p-5', hover && 'hover:shadow-card-hover hover:-translate-y-0.5', className)}>
+      {children}
+    </div>
+  );
 }
 
 export function CardHeader({
@@ -56,9 +62,9 @@ export function StatCard({
   }[tone];
 
   return (
-    <Card className="flex items-start gap-4">
+    <Card hover className="group flex items-start gap-4">
       {icon && (
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', toneClass)}>
+        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110', toneClass)}>
           {icon}
         </div>
       )}

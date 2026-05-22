@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Edit3, Power } from 'lucide-react';
+import { ArrowLeft, Edit3, Power, Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
+import { Skeleton, SkeletonText } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { Drawer } from '@/components/ui/Drawer';
@@ -68,15 +68,32 @@ export function LabourerProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  const edit = useLabourerEdit(labourer, load);
+  const edit = useLabourerEdit(labourer, load, () => router.push('/labourers'));
   const att = useAttendanceActions(labourer, load);
 
   const currentMonthSalary = useMemo(() => (salaries.length ? salaries[0] : null), [salaries]);
 
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Spinner label="Loading profile…" />
+      <div>
+        <div className="mb-6 space-y-2">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-32" />
+        </div>
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="card space-y-4 p-5">
+            <Skeleton className="h-4 w-24" />
+            <SkeletonText lines={5} />
+          </div>
+          <div className="card space-y-4 p-5 lg:col-span-2">
+            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-48 w-full rounded-lg" />
+          </div>
+        </div>
+        <div className="card p-5">
+          <Skeleton className="mb-4 h-4 w-40" />
+          <SkeletonText lines={4} />
+        </div>
       </div>
     );
   }
@@ -113,12 +130,21 @@ export function LabourerProfilePage() {
               Edit
             </Button>
             <Button
-              variant={labourer.is_active ? 'danger' : 'success'}
+              variant={labourer.is_active ? 'secondary' : 'success'}
               onClick={() => edit.setDeactivateOpen(true)}
               leftIcon={<Power className="h-4 w-4" />}
             >
               {labourer.is_active ? 'Deactivate' : 'Reactivate'}
             </Button>
+            {isAdmin && (
+              <Button
+                variant="danger"
+                onClick={() => edit.setPermanentOpen(true)}
+                leftIcon={<Trash2 className="h-4 w-4" />}
+              >
+                Delete permanently
+              </Button>
+            )}
           </>
         }
       />
@@ -207,6 +233,17 @@ export function LabourerProfilePage() {
         variant={labourer.is_active ? 'danger' : 'primary'}
         onConfirm={edit.handleDeactivate}
         onCancel={() => edit.setDeactivateOpen(false)}
+      />
+
+      <ConfirmDialog
+        open={edit.permanentOpen}
+        title={`Permanently delete ${labourer.name}?`}
+        description={`This permanently removes ${labourer.name} along with ALL of their attendance and salary history. This cannot be undone — to simply hide the labourer, use Deactivate instead. A record of this deletion is kept in the audit log.`}
+        confirmLabel="Delete permanently"
+        cancelLabel="Cancel"
+        variant="danger"
+        onConfirm={edit.handlePermanentDelete}
+        onCancel={() => edit.setPermanentOpen(false)}
       />
 
       <EditAttendanceModal

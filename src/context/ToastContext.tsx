@@ -60,17 +60,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             key={t.id}
             role="status"
             className={cn(
-              'flex items-start gap-3 rounded-lg border px-4 py-3 shadow-lg bg-white animate-slide-up w-80 max-w-full',
+              'relative flex items-start gap-3 overflow-hidden rounded-xl border px-4 py-3 shadow-lg bg-white animate-slide-in-right w-80 max-w-full',
               t.variant === 'success' && 'border-emerald-200 bg-emerald-50 text-emerald-900',
               t.variant === 'error' && 'border-red-200 bg-red-50 text-red-900',
               t.variant === 'warning' && 'border-amber-200 bg-amber-50 text-amber-900',
               t.variant === 'info' && 'border-slate-200 bg-white text-slate-900'
             )}
           >
-            {t.variant === 'success' && <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />}
-            {t.variant === 'error' && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />}
-            {t.variant === 'warning' && <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />}
-            {t.variant === 'info' && <Info className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5" />}
+            {t.variant === 'success' && <CheckCircle2 className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5 animate-pop" />}
+            {t.variant === 'error' && <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5 animate-pop" />}
+            {t.variant === 'warning' && <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5 animate-pop" />}
+            {t.variant === 'info' && <Info className="h-5 w-5 text-brand-600 flex-shrink-0 mt-0.5 animate-pop" />}
             <p className="flex-1 text-sm leading-snug">{t.message}</p>
             <button
               type="button"
@@ -80,6 +80,16 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             >
               <X className="h-4 w-4" />
             </button>
+            <span
+              className={cn(
+                'absolute bottom-0 left-0 h-1 w-full origin-left',
+                t.variant === 'success' && 'bg-emerald-500/60',
+                t.variant === 'error' && 'bg-red-500/60',
+                t.variant === 'warning' && 'bg-amber-500/60',
+                t.variant === 'info' && 'bg-brand-500/60'
+              )}
+              style={{ animation: `toastProgress ${AUTO_DISMISS_MS}ms linear forwards` }}
+            />
           </div>
         ))}
       </div>
