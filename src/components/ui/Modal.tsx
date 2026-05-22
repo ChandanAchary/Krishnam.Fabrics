@@ -58,7 +58,7 @@ export function Modal({
     >
       <div
         className={cn(
-          'relative w-full bg-white rounded-xl shadow-xl animate-slide-up flex flex-col max-h-[calc(100vh-2rem)]',
+          'relative w-full bg-white rounded-xl shadow-xl animate-scale-in flex flex-col max-h-[calc(100vh-2rem)]',
           SIZES[size]
         )}
         onClick={(e) => e.stopPropagation()}

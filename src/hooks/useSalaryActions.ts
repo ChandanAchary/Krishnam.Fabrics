@@ -25,6 +25,7 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
   const { user, fullName } = useAuth();
 
   const [markingId, setMarkingId] = useState<string | null>(null);
+  const [recalculating, setRecalculating] = useState(false);
   const [payModal, setPayModal] = useState<{ open: boolean; row?: Row; mode: 'mark_paid' | 'mark_unpaid' }>({
     open: false, mode: 'mark_paid',
   });
@@ -32,7 +33,7 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
   const [lockReason, setLockReason] = useState('');
   const [unlockPassword, setUnlockPassword] = useState('');
   const [lockBusy, setLockBusy] = useState(false);
-  const [deleteSal, setDeleteSal] = useState<{ open: boolean; row?: Row; reason: string }>({ open: false, reason: '' });
+  const [deleteSal, setDeleteSal] = useState<{ open: boolean; row?: Row }>({ open: false });
   const [deletingSal, setDeletingSal] = useState(false);
 
   const handleMarkPaid = async (payload: { amount: number; method: string; reference: string }) => {
@@ -72,9 +73,11 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
   };
 
   const handleRecalculate = async () => {
+    setRecalculating(true);
     const { error } = await supabase.rpc('recalculate_month_for_all', {
       p_month: month, p_year: year, p_trigger_reason: 'manual_admin',
     });
+    setRecalculating(false);
     if (error) {
       toast.error(`Recalc failed: ${error.message}`);
       return;
@@ -112,15 +115,14 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
 
   const handleDeleteSalary = async () => {
     if (!deleteSal.row) return;
-    if (deleteSal.reason.trim().length < 50) { toast.error('Reason must be at least 50 characters.'); return; }
     setDeletingSal(true);
     const { error } = await supabase.rpc('admin_delete_salary', {
-      p_salary_id: deleteSal.row.id, p_reason: deleteSal.reason,
+      p_salary_id: deleteSal.row.id, p_reason: null,
     });
     setDeletingSal(false);
     if (error) { toast.error(`Delete failed: ${error.message}`); return; }
     toast.success('Salary record deleted.');
-    setDeleteSal({ open: false, reason: '' });
+    setDeleteSal({ open: false });
     reload();
   };
 
@@ -168,6 +170,7 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
 
   return {
     markingId,
+    recalculating,
     payModal, setPayModal,
     lockModal, setLockModal,
     lockReason, setLockReason,

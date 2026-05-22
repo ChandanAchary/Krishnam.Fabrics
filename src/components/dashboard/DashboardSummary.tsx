@@ -1,8 +1,8 @@
 'use client';
 
 import { CalendarCheck, ClipboardList, Users, Wallet } from 'lucide-react';
-import { Card, StatCard } from '@/components/ui/Card';
-import { Spinner } from '@/components/ui/Spinner';
+import { StatCard } from '@/components/ui/Card';
+import { CardGridSkeleton } from '@/components/ui/Skeleton';
 import { fmtDate, fmtMonthYear, todayISO } from '@/lib/date';
 import { fmtCurrency } from '@/lib/money';
 import type { DashboardSummary as Summary } from '@/types/database';
@@ -16,12 +16,8 @@ interface Props {
 export function DashboardSummary({ loading, summary, attendanceTaken }: Props) {
   if (loading || !summary) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Card key={i} className="h-[112px] flex items-center justify-center">
-            <Spinner />
-          </Card>
-        ))}
+      <div className="mb-6">
+        <CardGridSkeleton count={4} />
       </div>
     );
   }

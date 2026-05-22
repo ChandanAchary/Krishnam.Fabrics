@@ -8,12 +8,14 @@ import { useAuth } from '@/context/AuthContext';
 import type { Labourer } from '@/types/database';
 import type { LabourerFormValues } from '@/components/labourers/LabourerForm';
 
-export function useLabourerEdit(labourer: Labourer | null, onChanged: () => void) {
+export function useLabourerEdit(labourer: Labourer | null, onChanged: () => void, onDeleted?: () => void) {
   const { isAdmin } = useAuth();
   const toast = useToast();
 
   const [editOpen, setEditOpen] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
+  const [permanentOpen, setPermanentOpen] = useState(false);
+  const [deletingPermanent, setDeletingPermanent] = useState(false);
   const [wagePrompt, setWagePrompt] = useState<{ open: boolean; pending?: LabourerFormValues; newWage?: number }>({
     open: false,
   });
@@ -165,15 +167,39 @@ export function useLabourerEdit(labourer: Labourer | null, onChanged: () => void
     onChanged();
   };
 
+  const handlePermanentDelete = async () => {
+    if (!labourer) return;
+    if (!isAdmin) {
+      toast.error('Only admins can permanently delete labourers.');
+      return;
+    }
+    setDeletingPermanent(true);
+    const { error } = await supabase.rpc('admin_delete_labourer', {
+      p_labourer_id: labourer.id,
+      p_reason: null,
+    });
+    setDeletingPermanent(false);
+    if (error) {
+      toast.error(`Delete failed: ${error.message}`);
+      return;
+    }
+    toast.success(`${labourer.name} permanently deleted`);
+    setPermanentOpen(false);
+    onDeleted?.();
+  };
+
   return {
     editOpen, setEditOpen,
     savingEdit,
     wagePrompt, setWagePrompt,
     joiningPrompt, setJoiningPrompt,
     deactivateOpen, setDeactivateOpen,
+    permanentOpen, setPermanentOpen,
+    deletingPermanent,
     handleEditSubmit,
     confirmJoiningChange,
     applyWageChange,
     handleDeactivate,
+    handlePermanentDelete,
   };
 }

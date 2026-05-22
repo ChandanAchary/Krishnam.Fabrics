@@ -32,6 +32,9 @@ const ACTIONS = [
   'change_wage',
   'export_report',
   'update_settings',
+  'delete_attendance',
+  'delete_salary',
+  'delete_labourer',
 ];
 
 const PAGE_SIZE = 25;

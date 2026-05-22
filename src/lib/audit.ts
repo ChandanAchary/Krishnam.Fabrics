@@ -17,7 +17,8 @@ export type AuditAction =
   | 'export_report'
   | 'update_settings'
   | 'delete_attendance'
-  | 'delete_salary';
+  | 'delete_salary'
+  | 'delete_labourer';
 
 export async function logAudit(opts: {
   action: AuditAction;

@@ -9,8 +9,8 @@ import {
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Spinner } from '@/components/ui/Spinner';
-import { DeleteWithReasonModal } from '@/components/ui/DeleteWithReasonModal';
+import { TableSkeleton } from '@/components/ui/Skeleton';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { SalaryTable, type Row } from '@/components/salary/SalaryTable';
 import { PaymentModal } from '@/components/salary/PaymentModal';
 import { LockMonthModal, UnlockMonthModal } from '@/components/salary/LockMonthModals';
@@ -132,6 +132,7 @@ export function SalaryPage() {
               leftIcon={<FileText className="h-4 w-4" />}>Download PDF</Button>
             {isAdmin && (
               <Button variant="secondary" onClick={actions.handleRecalculate}
+                loading={actions.recalculating}
                 disabled={Boolean(lock?.is_locked) || rows.length === 0}
                 leftIcon={<RefreshCcw className="h-4 w-4" />}>Recalculate</Button>
             )}
@@ -170,22 +171,20 @@ export function SalaryPage() {
       />
 
       <Card padded={false} className="overflow-hidden">
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="py-12 flex justify-center"><Spinner label="Loading salaries…" /></div>
-          ) : (
-            <SalaryTable
-              rows={filtered}
-              isAdmin={isAdmin}
-              markingId={actions.markingId}
-              onMarkPaid={(row) => actions.setPayModal({ open: true, row, mode: 'mark_paid' })}
-              onMarkUnpaid={(row) => actions.setPayModal({ open: true, row, mode: 'mark_unpaid' })}
-              onDelete={isAdmin ? (row) => actions.setDeleteSal({ open: true, row, reason: '' }) : undefined}
-              totals={totals}
-              hasAnyRows={rows.length > 0}
-            />
-          )}
-        </div>
+        {loading ? (
+          <TableSkeleton rows={8} cols={7} />
+        ) : (
+          <SalaryTable
+            rows={filtered}
+            isAdmin={isAdmin}
+            markingId={actions.markingId}
+            onMarkPaid={(row) => actions.setPayModal({ open: true, row, mode: 'mark_paid' })}
+            onMarkUnpaid={(row) => actions.setPayModal({ open: true, row, mode: 'mark_unpaid' })}
+            onDelete={isAdmin ? (row) => actions.setDeleteSal({ open: true, row }) : undefined}
+            totals={totals}
+            hasAnyRows={rows.length > 0}
+          />
+        )}
         {!loading && rows.length === 0 && (
           <div className="px-4 py-3 text-sm">
             <Link href="/attendance" className="text-brand-600 hover:underline">
@@ -229,14 +228,18 @@ export function SalaryPage() {
         onConfirm={actions.handleUnlock}
       />
 
-      <DeleteWithReasonModal
+      <ConfirmDialog
         open={actions.deleteSal.open}
         title="Delete salary record?"
-        reason={actions.deleteSal.reason}
-        busy={actions.deletingSal}
-        onReasonChange={(v) => actions.setDeleteSal({ ...actions.deleteSal, reason: v })}
-        onCancel={() => actions.setDeleteSal({ open: false, reason: '' })}
+        description={
+          actions.deleteSal.row
+            ? `This permanently removes the salary record for ${actions.deleteSal.row.labourer?.name ?? 'this labourer'}. The old value is captured in the audit log.`
+            : 'This permanently removes the salary record. The old value is captured in the audit log.'
+        }
+        confirmLabel="Delete record"
+        variant="danger"
         onConfirm={actions.handleDeleteSalary}
+        onCancel={() => actions.setDeleteSal({ open: false })}
       />
     </div>
   );

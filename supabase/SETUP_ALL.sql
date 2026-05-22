@@ -1292,7 +1292,7 @@ GRANT EXECUTE ON FUNCTION public.admin_delete_attendance(UUID, TEXT) TO authenti
 -- -----------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.admin_delete_salary(
   p_salary_id UUID,
-  p_reason TEXT
+  p_reason TEXT DEFAULT NULL
 )
 RETURNS UUID
 LANGUAGE plpgsql SECURITY DEFINER
@@ -1304,9 +1304,6 @@ DECLARE
 BEGIN
   IF NOT public.is_admin() THEN
     RAISE EXCEPTION 'Only admins can delete salary records' USING ERRCODE = '42501';
-  END IF;
-  IF p_reason IS NULL OR char_length(trim(p_reason)) < 50 THEN
-    RAISE EXCEPTION 'Reason must be at least 50 characters' USING ERRCODE = 'P0001';
   END IF;
 
   SELECT * INTO v_row FROM public.monthly_salaries WHERE id = p_salary_id;
@@ -1897,3 +1894,58 @@ BEGIN
 
   RAISE NOTICE 'Seeded admin: %', v_email;
 END $$;
+
+-- >>> FILE: migrations/20250101000010_permanent_delete.sql
+
+-- =============================================================================
+-- LabourFlow — Permanent labourer delete
+-- =============================================================================
+-- Permanently removes a labourer and ALL dependent rows (attendance,
+-- monthly_salaries, recalculation_log — all ON DELETE RESTRICT). Admin-only;
+-- captures the full labourer row in the audit log before deletion.
+-- =============================================================================
+CREATE OR REPLACE FUNCTION public.admin_delete_labourer(
+  p_labourer_id UUID,
+  p_reason TEXT DEFAULT NULL
+)
+RETURNS UUID
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_row public.labourers%ROWTYPE;
+BEGIN
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Only admins can permanently delete labourers' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT * INTO v_row FROM public.labourers WHERE id = p_labourer_id;
+  IF v_row.id IS NULL THEN
+    RAISE EXCEPTION 'Labourer % not found', p_labourer_id;
+  END IF;
+
+  PERFORM public.write_audit(
+    'delete_labourer', 'labourers', v_row.id,
+    to_jsonb(v_row),
+    NULL,
+    p_reason
+  );
+
+  ALTER TABLE public.attendance DISABLE TRIGGER trg_attendance_recalc;
+
+  DELETE FROM public.recalculation_log WHERE labourer_id = p_labourer_id;
+  DELETE FROM public.attendance        WHERE labourer_id = p_labourer_id;
+  DELETE FROM public.monthly_salaries  WHERE labourer_id = p_labourer_id;
+  DELETE FROM public.labourers         WHERE id = p_labourer_id;
+
+  ALTER TABLE public.attendance ENABLE TRIGGER trg_attendance_recalc;
+
+  RETURN p_labourer_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.admin_delete_labourer(UUID, TEXT) TO authenticated;
+
+DROP POLICY IF EXISTS labourers_delete_admin ON public.labourers;
+CREATE POLICY labourers_delete_admin ON public.labourers
+  FOR DELETE TO authenticated USING (public.is_admin());
