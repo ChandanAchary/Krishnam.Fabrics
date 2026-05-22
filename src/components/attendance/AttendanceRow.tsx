@@ -25,7 +25,7 @@ export function AttendanceRow({ index, labourer, status, previouslyRecorded, dis
     <tr className="hover:bg-slate-50">
       <td className="px-4 py-3 text-slate-500">{index + 1}</td>
       <td className="px-4 py-3">
-        <p className="font-medium text-slate-900">{labourer.name}</p>
+        <p className="font-semibold text-violet-700">{labourer.name}</p>
         {previouslyRecorded && <p className="text-[11px] text-slate-400">Previously recorded</p>}
       </td>
       <td className="px-4 py-3 text-right text-slate-700">{fmtCurrency(labourer.daily_wage)}</td>

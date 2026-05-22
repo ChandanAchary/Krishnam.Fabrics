@@ -39,7 +39,7 @@ export function AttendanceMatrix({ days, rows }: Props) {
     return <EmptyState title="No labourers for this month" description="Add labourers or pick another month." />;
   }
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto scroll-touch">
       <table className="text-xs border-collapse">
         <thead className="bg-slate-50 text-slate-500">
           <tr>
@@ -60,7 +60,7 @@ export function AttendanceMatrix({ days, rows }: Props) {
           {rows.map((r) => (
             <tr key={r.labourerId} className="hover:bg-slate-50/60">
               <td className="sticky left-0 z-10 bg-white px-3 py-2 border-r border-slate-200">
-                <p className="font-medium text-slate-900 whitespace-nowrap">{r.name}</p>
+                <p className="font-semibold text-violet-700 whitespace-nowrap">{r.name}</p>
                 {r.designation && <p className="text-[10px] text-slate-400">{r.designation}</p>}
               </td>
               {days.map((d) => {

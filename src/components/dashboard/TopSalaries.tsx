@@ -38,7 +38,7 @@ export function TopSalaries({ rows, month, year }: Props) {
           {rows.map((s) => (
             <li key={s.id} className="py-2.5 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-900 truncate">{s.labourer?.name ?? '—'}</p>
+                <p className="text-sm font-semibold text-violet-700 truncate">{s.labourer?.name ?? '—'}</p>
                 <p className="text-xs text-slate-500">
                   {s.days_present} present · {s.half_days_count} half-day
                 </p>

@@ -85,7 +85,7 @@ export function AttendanceHistoryTable({
       {filtered.length === 0 ? (
         <EmptyState title="No matching attendance" description="Adjust the filters above to see records." />
       ) : (
-        <div className="overflow-x-auto max-h-96">
+        <div className="overflow-x-auto scroll-touch max-h-96">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 sticky top-0">
               <tr>
