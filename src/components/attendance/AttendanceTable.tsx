@@ -36,7 +36,7 @@ export function AttendanceTable({ loading, rows, totalRows, disabled, onStatusCh
     );
   }
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto scroll-touch">
       <table className="w-full text-sm">
         <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
           <tr>

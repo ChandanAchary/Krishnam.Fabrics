@@ -134,74 +134,50 @@ export function LabourersListPage() {
               }
             />
           ) : (
-            <>
-              {/* Desktop / tablet: full table (scrolls horizontally if needed) */}
-              <div className="hidden md:block overflow-x-auto scroll-touch">
-                <table className="w-full min-w-[760px] text-sm">
-                  <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium">Name</th>
-                      <th className="text-left px-4 py-3 font-medium">Designation</th>
-                      <th className="text-left px-4 py-3 font-medium">Phone</th>
-                      <th className="text-right px-4 py-3 font-medium">Daily wage</th>
-                      <th className="text-right px-4 py-3 font-medium">Advance</th>
-                      <th className="text-left px-4 py-3 font-medium">Joining</th>
-                      <th className="text-left px-4 py-3 font-medium">Status</th>
-                      <th className="text-right px-4 py-3 font-medium"></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {rows.map((l) => (
-                      <tr key={l.id} className="transition-colors hover:bg-brand-50/40">
-                        <td className="px-4 py-3 font-medium text-slate-900 whitespace-nowrap">{l.name}</td>
-                        <td className="px-4 py-3 text-slate-700">
-                          {l.designation ? <Badge tone="blue">{l.designation}</Badge> : '—'}
-                        </td>
-                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{l.phone ?? '—'}</td>
-                        <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">{fmtCurrency(l.daily_wage)}</td>
-                        <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">
-                          {l.advance && l.advance > 0 ? fmtCurrency(l.advance) : '—'}
-                        </td>
-                        <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{fmtDate(l.joining_date)}</td>
-                        <td className="px-4 py-3">
-                          {l.is_active ? <Badge tone="green">Active</Badge> : <Badge tone="slate">Inactive</Badge>}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <Link href={`/labourers/${l.id}`} className="btn-secondary" aria-label={`View ${l.name}`}>
-                            <UserCog className="h-4 w-4" /> View
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Mobile: stacked cards */}
-              <ul className="divide-y divide-slate-100 md:hidden">
-                {rows.map((l) => (
-                  <li key={l.id}>
-                    <Link
-                      href={`/labourers/${l.id}`}
-                      className="block px-4 py-3.5 transition-colors active:bg-brand-50 hover:bg-slate-50"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-medium text-slate-900">{l.name}</span>
+            <div className="overflow-x-auto scroll-touch">
+              <table className="w-full min-w-[760px] text-sm">
+                <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-medium">Name</th>
+                    <th className="text-left px-4 py-3 font-medium">Designation</th>
+                    <th className="text-left px-4 py-3 font-medium">Phone</th>
+                    <th className="text-right px-4 py-3 font-medium">Daily wage</th>
+                    <th className="text-right px-4 py-3 font-medium">Advance</th>
+                    <th className="text-left px-4 py-3 font-medium">Joining</th>
+                    <th className="text-left px-4 py-3 font-medium">Status</th>
+                    <th className="text-right px-4 py-3 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {rows.map((l) => (
+                    <tr key={l.id} className="transition-colors hover:bg-brand-50/40">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <Link href={`/labourers/${l.id}`} className="font-semibold text-violet-700 hover:text-violet-900 hover:underline">
+                          {l.name}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {l.designation ? <Badge tone="blue">{l.designation}</Badge> : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{l.phone ?? '—'}</td>
+                      <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">{fmtCurrency(l.daily_wage)}</td>
+                      <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">
+                        {l.advance && l.advance > 0 ? fmtCurrency(l.advance) : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{fmtDate(l.joining_date)}</td>
+                      <td className="px-4 py-3">
                         {l.is_active ? <Badge tone="green">Active</Badge> : <Badge tone="slate">Inactive</Badge>}
-                      </div>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                        {l.designation && <span>{l.designation}</span>}
-                        <span>{l.phone ?? 'No phone'}</span>
-                        <span className="font-medium text-slate-700">{fmtCurrency(l.daily_wage)}/day</span>
-                        {l.advance && l.advance > 0 ? (
-                          <span className="text-amber-700">Adv {fmtCurrency(l.advance)}</span>
-                        ) : null}
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link href={`/labourers/${l.id}`} className="btn-secondary" aria-label={`View ${l.name}`}>
+                          <UserCog className="h-4 w-4" /> View
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
