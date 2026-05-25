@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { CalendarCheck, Lock, PlusCircle, Wallet } from 'lucide-react';
-import { PageHeader } from '@/components/ui/PageHeader';
+import { BarChart3, CalendarCheck, Lock, PlusCircle, Wallet } from 'lucide-react';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { AttendanceWarningBanner } from '@/components/dashboard/AttendanceWarningBanner';
 import { DashboardSummary } from '@/components/dashboard/DashboardSummary';
@@ -83,10 +82,41 @@ export function DashboardPage() {
 
   return (
     <div>
-      <PageHeader
-        title={`Welcome${fullName ? `, ${fullName.split(' ')[0]}` : ''}`}
-        description={`${settings.company_name} · ${fmtDate(todayISO())}`}
-      />
+      <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-700 via-brand-600 to-violet-600 px-6 py-7 text-white shadow-lg sm:px-8">
+        <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10" aria-hidden />
+        <div className="pointer-events-none absolute -bottom-20 right-28 h-48 w-48 rounded-full bg-white/5" aria-hidden />
+        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide backdrop-blur">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+              </span>
+              Live overview
+            </span>
+            <h1 className="mt-3 text-2xl font-bold leading-tight sm:text-3xl">
+              Welcome back{fullName ? `, ${fullName.split(' ')[0]}` : ''}
+            </h1>
+            <p className="mt-1 text-sm text-white/80">
+              {settings.company_name} · {fmtDate(todayISO())}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/labourers/new"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-white/90 active:scale-[0.97]"
+            >
+              <PlusCircle className="h-4 w-4" /> Add labour
+            </Link>
+            <Link
+              href="/reports"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-white/40 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20 active:scale-[0.97]"
+            >
+              <BarChart3 className="h-4 w-4" /> View reports
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {!loading && !attendanceTaken && <AttendanceWarningBanner />}
 

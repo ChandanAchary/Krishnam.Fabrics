@@ -28,7 +28,8 @@ export function DashboardSummary({ loading, summary, attendanceTaken }: Props) {
         label="Active Labourers"
         value={summary.active_labourers}
         hint="Currently on roster"
-        icon={<Users className="h-5 w-5" />}
+        icon={<Users className="h-6 w-6" />}
+        tone="blue"
       />
       <StatCard
         label="Present Today"
@@ -38,21 +39,22 @@ export function DashboardSummary({ loading, summary, attendanceTaken }: Props) {
             ? `${summary.today_recorded_count} records on ${fmtDate(todayISO())}`
             : 'Attendance pending'
         }
-        icon={<CalendarCheck className="h-5 w-5" />}
-        tone={attendanceTaken ? 'success' : 'warning'}
+        icon={<CalendarCheck className="h-6 w-6" />}
+        tone={attendanceTaken ? 'emerald' : 'amber'}
       />
       <StatCard
         label="Unpaid This Month"
         value={fmtCurrency(summary.unpaid_total)}
         hint={`${summary.unpaid_count} labourers awaiting payment`}
-        icon={<Wallet className="h-5 w-5" />}
-        tone={summary.unpaid_total > 0 ? 'danger' : 'success'}
+        icon={<Wallet className="h-6 w-6" />}
+        tone={summary.unpaid_total > 0 ? 'rose' : 'emerald'}
       />
       <StatCard
         label="Total Salary Due"
         value={fmtCurrency(summary.due_total)}
         hint={fmtMonthYear(summary.current_month, summary.current_year)}
-        icon={<ClipboardList className="h-5 w-5" />}
+        icon={<ClipboardList className="h-6 w-6" />}
+        tone="violet"
       />
     </div>
   );
