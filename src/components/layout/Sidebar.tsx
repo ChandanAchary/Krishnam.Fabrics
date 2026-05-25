@@ -99,9 +99,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             collapsed ? 'justify-center px-2' : 'px-5'
           )}
         >
-          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-600">
-            <Logo className="h-5 w-5 text-white" />
-          </div>
+          <Logo className="h-9 w-9 flex-shrink-0" />
           {!collapsed && (
             <div className="min-w-0">
               <p className="truncate text-base font-semibold text-white">Krishnam HRMS</p>
