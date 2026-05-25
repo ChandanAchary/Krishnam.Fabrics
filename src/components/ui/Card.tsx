@@ -1,6 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function Card({
@@ -41,37 +42,63 @@ export function CardHeader({
   );
 }
 
+type StatTone = 'default' | 'success' | 'warning' | 'danger' | 'blue' | 'emerald' | 'amber' | 'violet' | 'rose';
+
+const STAT_TONES: Record<StatTone, { bar: string; icon: string }> = {
+  default: { bar: 'from-brand-500 to-brand-600', icon: 'from-brand-500 to-brand-600' },
+  blue:    { bar: 'from-brand-500 to-brand-600', icon: 'from-brand-500 to-brand-600' },
+  success: { bar: 'from-emerald-400 to-emerald-600', icon: 'from-emerald-500 to-emerald-600' },
+  emerald: { bar: 'from-emerald-400 to-emerald-600', icon: 'from-emerald-500 to-emerald-600' },
+  warning: { bar: 'from-amber-400 to-orange-500', icon: 'from-amber-500 to-orange-500' },
+  amber:   { bar: 'from-amber-400 to-orange-500', icon: 'from-amber-500 to-orange-500' },
+  violet:  { bar: 'from-violet-400 to-purple-600', icon: 'from-violet-500 to-purple-600' },
+  danger:  { bar: 'from-rose-400 to-red-600', icon: 'from-rose-500 to-red-600' },
+  rose:    { bar: 'from-rose-400 to-red-600', icon: 'from-rose-500 to-red-600' },
+};
+
 export function StatCard({
   label,
   value,
   hint,
   icon,
   tone = 'default',
+  trend,
 }: {
   label: string;
   value: ReactNode;
   hint?: string;
   icon?: ReactNode;
-  tone?: 'default' | 'success' | 'warning' | 'danger';
+  tone?: StatTone;
+  /** Optional positive/neutral chip shown top-right, e.g. "+4 this month". */
+  trend?: string;
 }) {
-  const toneClass = {
-    default: 'bg-brand-50 text-brand-700',
-    success: 'bg-emerald-50 text-emerald-700',
-    warning: 'bg-amber-50 text-amber-700',
-    danger: 'bg-red-50 text-red-700',
-  }[tone];
+  const t = STAT_TONES[tone] ?? STAT_TONES.default;
 
   return (
-    <Card hover className="group flex items-start gap-4">
-      {icon && (
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg transition-transform duration-200 group-hover:scale-110', toneClass)}>
-          {icon}
+    <Card hover padded={false} className="group relative overflow-hidden">
+      <span className={cn('absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r', t.bar)} aria-hidden />
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-3">
+          {icon && (
+            <div
+              className={cn(
+                'flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-sm transition-transform duration-200 group-hover:scale-110',
+                t.icon
+              )}
+            >
+              {icon}
+            </div>
+          )}
+          {trend && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-600">
+              <TrendingUp className="h-3 w-3" />
+              {trend}
+            </span>
+          )}
         </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-slate-500">{label}</p>
-        <p className="mt-1 text-2xl font-semibold text-slate-900 truncate">{value}</p>
-        {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+        <p className="mt-4 truncate text-2xl font-bold text-slate-900 sm:text-3xl">{value}</p>
+        <p className="mt-1 text-sm font-medium text-slate-600">{label}</p>
+        {hint && <p className="mt-1 text-xs font-medium text-slate-500">{hint}</p>}
       </div>
     </Card>
   );
