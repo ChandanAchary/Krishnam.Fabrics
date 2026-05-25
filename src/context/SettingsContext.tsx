@@ -22,7 +22,7 @@ interface SettingsApi {
 }
 
 const DEFAULTS: SettingsMap = {
-  company_name: 'LabourFlow Co.',
+  company_name: 'Krishnam Fabrics',
   currency_symbol: '₹',
   default_daily_wage: '400.00',
   notification_email: '',

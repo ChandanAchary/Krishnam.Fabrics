@@ -10,7 +10,7 @@ const anonKey =
 if (!url || !anonKey) {
   // eslint-disable-next-line no-console
   console.error(
-    '[LabourFlow] Missing NEXT_PUBLIC_SUPABASE_URL or the Supabase key. ' +
+    '[Krishnam HRMS] Missing NEXT_PUBLIC_SUPABASE_URL or the Supabase key. ' +
       'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY ' +
       '(or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) in .env.local.'
   );
@@ -22,4 +22,4 @@ if (!url || !anonKey) {
  */
 export const supabase = createBrowserClient(url ?? 'http://localhost:54321', anonKey ?? 'anon-key');
 
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'LabourFlow';
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Krishnam HRMS';

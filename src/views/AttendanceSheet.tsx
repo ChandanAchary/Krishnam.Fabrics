@@ -125,7 +125,7 @@ export function AttendanceSheetPage() {
       r.net.toFixed(2),
       r.paid ? 'Yes' : 'No',
     ]);
-    exportCSV(`LabourFlow_AttendanceSheet_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
+    exportCSV(`Krishnam_AttendanceSheet_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
     await logAudit({ action: 'export_report', table: null, newValue: { format: 'csv', kind: 'attendance_sheet', month, year } });
     toast.success('Attendance sheet exported.');
   };

@@ -5,18 +5,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Soft, muted indigo — calm Material-style primary (not vibrant).
         brand: {
-          50: '#eef5ff',
-          100: '#d9e8ff',
-          200: '#bcd6ff',
-          300: '#8ebcff',
-          400: '#5994ff',
-          500: '#356dff',
-          600: '#1e4af5',
-          700: '#1738dd',
-          800: '#1830b0',
-          900: '#1a2f89',
-          950: '#141d50',
+          50: '#eef1f8',
+          100: '#dee3f2',
+          200: '#c3cce6',
+          300: '#9badd6',
+          400: '#7186c0',
+          500: '#5268a8',
+          600: '#42578d',
+          700: '#394a76',
+          800: '#323f61',
+          900: '#2d3751',
+          950: '#1c2235',
         },
       },
       fontFamily: {

@@ -149,7 +149,7 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
       'TOTAL', '', '', totals.daysPresent, totals.halfDays, '', '',
       totals.calculated.toFixed(2), totals.advance.toFixed(2), totals.net.toFixed(2), '', '',
     ]);
-    exportCSV(`LabourFlow_Salary_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
+    exportCSV(`Krishnam_Salary_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
     await logAudit({ action: 'export_report', table: null, recordId: null, newValue: { format: 'csv', month, year } });
     toast.success('CSV exported.');
   };

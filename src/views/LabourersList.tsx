@@ -152,7 +152,7 @@ export function LabourersListPage() {
                   {rows.map((l) => (
                     <tr key={l.id} className="transition-colors hover:bg-brand-50/40">
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <Link href={`/labourers/${l.id}`} className="font-semibold text-violet-700 hover:text-violet-900 hover:underline">
+                        <Link href={`/labourers/${l.id}`} className="font-semibold text-brand-700 hover:text-brand-900 hover:underline">
                           {l.name}
                         </Link>
                       </td>

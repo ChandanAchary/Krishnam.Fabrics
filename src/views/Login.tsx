@@ -6,9 +6,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Eye, EyeOff, LogIn, Layers } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { Logo } from '@/components/ui/Logo';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { supabase } from '@/lib/supabase';
@@ -73,9 +74,9 @@ export function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 shadow-card">
-            <Layers className="h-7 w-7 text-white" />
+            <Logo className="h-7 w-7 text-white" />
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-slate-900">Welcome to LabourFlow</h1>
+          <h1 className="mt-4 text-2xl font-bold text-slate-900">Welcome to Krishnam HRMS</h1>
           <p className="mt-1 text-sm text-slate-500">Sign in with your email and password.</p>
         </div>
 

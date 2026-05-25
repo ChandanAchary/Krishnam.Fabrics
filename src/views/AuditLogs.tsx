@@ -101,7 +101,7 @@ export function AuditLogsPage() {
     <div>
       <PageHeader
         title="Audit logs"
-        description="Immutable record of every state-changing action in LabourFlow."
+        description="Immutable record of every state-changing action in Krishnam HRMS."
         action={
           <Badge tone="blue">
             <ShieldCheck className="h-3 w-3" /> Admin only
