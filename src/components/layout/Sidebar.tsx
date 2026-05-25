@@ -12,13 +12,13 @@ import {
   FileBarChart2,
   Settings,
   ShieldCheck,
-  Layers,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/context/SettingsContext';
+import { Logo } from '@/components/ui/Logo';
 
 interface SidebarProps {
   open: boolean;
@@ -89,22 +89,26 @@ export function Sidebar({ open, onClose }: SidebarProps) {
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
 
-        <div
+        <Link
+          href="/dashboard"
+          onClick={onClose}
+          aria-label="Krishnam HRMS — go to dashboard"
+          title="Go to dashboard"
           className={cn(
-            'flex items-center gap-2 border-b border-slate-800 py-5',
+            'flex items-center gap-2 border-b border-slate-800 py-5 transition-colors hover:bg-slate-800/50',
             collapsed ? 'justify-center px-2' : 'px-5'
           )}
         >
           <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-600">
-            <Layers className="h-5 w-5 text-white" />
+            <Logo className="h-5 w-5 text-white" />
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-white">LabourFlow</p>
+              <p className="truncate text-base font-semibold text-white">Krishnam HRMS</p>
               <p className="truncate text-xs text-slate-400">{settings.company_name}</p>
             </div>
           )}
-        </div>
+        </Link>
 
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3">
           <ul className="space-y-1">

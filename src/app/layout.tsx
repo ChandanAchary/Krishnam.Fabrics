@@ -3,13 +3,13 @@ import './globals.css';
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  title: 'LabourFlow',
+  title: 'Krishnam HRMS',
   description:
-    'LabourFlow — Labour management platform for daily attendance, salary, and payment tracking.',
+    'Krishnam HRMS — workforce attendance, salary, and payment management for Krishnam Fabrics.',
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1e4af5',
+  themeColor: '#42578d',
   width: 'device-width',
   initialScale: 1,
 };

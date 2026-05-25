@@ -80,7 +80,7 @@ export function PaymentModal({ open, row, mode, busy, onCancel, onConfirmPaid, o
         <div className="space-y-3">
           <p className="text-sm text-slate-700">
             This clears the payment record (amount, method, date) for{' '}
-            <span className="font-semibold text-violet-700">{row?.labourer?.name}</span>.
+            <span className="font-semibold text-brand-700">{row?.labourer?.name}</span>.
           </p>
           <Input
             label="Reason (optional)"

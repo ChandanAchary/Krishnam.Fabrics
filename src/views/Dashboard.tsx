@@ -82,7 +82,7 @@ export function DashboardPage() {
 
   return (
     <div>
-      <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-700 via-brand-600 to-violet-600 px-6 py-7 text-white shadow-lg sm:px-8">
+      <div className="relative mb-6 overflow-hidden rounded-2xl bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 px-6 py-7 text-white shadow-md sm:px-8">
         <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-white/10" aria-hidden />
         <div className="pointer-events-none absolute -bottom-20 right-28 h-48 w-48 rounded-full bg-white/5" aria-hidden />
         <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

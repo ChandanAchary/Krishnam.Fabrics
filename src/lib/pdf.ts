@@ -101,7 +101,7 @@ export function generateSalaryPDF(opts: {
     doc.text(`Page ${i} of ${pageCount}`, pageWidth - 80, doc.internal.pageSize.getHeight() - 20);
   }
 
-  const filename = `LabourFlow_Salary_${format(new Date(year, month - 1, 1), 'MMM')}_${year}.pdf`;
+  const filename = `Krishnam_Salary_${format(new Date(year, month - 1, 1), 'MMM')}_${year}.pdf`;
   doc.save(filename);
   void fmtCurrency;
 }
