@@ -73,9 +73,7 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-brand-50 to-slate-100 px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 shadow-card">
-            <Logo className="h-7 w-7 text-white" />
-          </div>
+          <Logo className="inline-block h-14 w-14 drop-shadow-md" />
           <h1 className="mt-4 text-2xl font-bold text-slate-900">Welcome to Krishnam HRMS</h1>
           <p className="mt-1 text-sm text-slate-500">Sign in with your email and password.</p>
         </div>
