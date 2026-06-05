@@ -313,10 +313,13 @@ $$;
 GRANT EXECUTE ON FUNCTION public.save_daily_attendance(DATE, JSONB, BOOLEAN) TO authenticated;
 
 -- 6. edit_attendance — accept new statuses
+-- NOTE: p_reason keeps its DEFAULT NULL from migration 005. Postgres rejects a
+-- CREATE OR REPLACE that REMOVES an existing parameter default (SQLSTATE 42P13),
+-- so the default must be carried forward here even though the body ignores it.
 CREATE OR REPLACE FUNCTION public.edit_attendance(
   p_attendance_id UUID,
   p_new_status TEXT,
-  p_reason TEXT
+  p_reason TEXT DEFAULT NULL
 )
 RETURNS public.attendance
 LANGUAGE plpgsql SECURITY DEFINER
