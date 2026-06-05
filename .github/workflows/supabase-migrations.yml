@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "supabase/migrations/**"
   workflow_dispatch:
 
 permissions:
@@ -41,18 +39,19 @@ jobs:
           exit "$missing"
 
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
-      - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
+      - name: Check Supabase CLI
+        run: npx --yes supabase@latest --version
 
       - name: Link Supabase project
-        run: supabase link --project-ref "$SUPABASE_PROJECT_ID"
+        run: npx --yes supabase@latest link --project-ref "$SUPABASE_PROJECT_ID"
+
+      - name: Show migration status
+        run: npx --yes supabase@latest migration list --linked
 
       - name: Preview pending migrations
-        run: supabase db push --dry-run
+        run: npx --yes supabase@latest db push --dry-run
 
       - name: Apply database migrations
-        run: supabase db push
+        run: npx --yes supabase@latest db push
