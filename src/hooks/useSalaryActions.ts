@@ -14,6 +14,9 @@ import type { Row } from '@/components/salary/SalaryTable';
 interface Totals {
   daysPresent: number;
   halfDays: number;
+  doubleDuties: number;
+  oneAndHalfDuties: number;
+  absents: number;
   calculated: number;
   advance: number;
   net: number;
@@ -127,17 +130,25 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
   };
 
   const handleExportCSV = async () => {
+    const sym = settings.currency_symbol;
     const headers = [
-      'Labourer Name', 'Phone', 'Designation', 'Days Present', 'Half Days', 'Effective Days',
-      `Daily Wage (${settings.currency_symbol})`, `Gross Salary (${settings.currency_symbol})`,
-      `Advance (${settings.currency_symbol})`, `Net Salary (${settings.currency_symbol})`,
+      'Labourer Name', 'Phone', 'Designation',
+      'Present', 'Half Day', 'Double Duty', '1.5 Duty', 'Absent',
+      'Effective Days',
+      `Daily Wage (${sym})`, `Gross Salary (${sym})`,
+      `Advance (${sym})`, `Final Net Salary (${sym})`,
       'Payment Status', 'Paid On',
     ];
-    const data = rows.map((r) => [
+    const data: (string | number)[][] = rows.map((r) => [
       r.labourer?.name ?? '',
       r.labourer?.phone ?? '',
       r.labourer?.designation ?? '',
-      r.days_present, r.half_days_count, r.effective_days,
+      r.days_present,
+      r.half_days_count,
+      r.double_duty_count ?? 0,
+      r.one_and_half_duty_count ?? 0,
+      r.absent_count ?? 0,
+      r.effective_days,
       Number(r.daily_wage_used).toFixed(2),
       Number(r.calculated_salary).toFixed(2),
       Number(r.advance_deducted).toFixed(2),
@@ -146,8 +157,11 @@ export function useSalaryActions(month: number, year: number, rows: Row[], total
       r.paid_on ? fmtDate(r.paid_on) : '',
     ]);
     data.push([
-      'TOTAL', '', '', totals.daysPresent, totals.halfDays, '', '',
-      totals.calculated.toFixed(2), totals.advance.toFixed(2), totals.net.toFixed(2), '', '',
+      'TOTAL', '', '',
+      totals.daysPresent, totals.halfDays, totals.doubleDuties, totals.oneAndHalfDuties, totals.absents,
+      '', '',
+      totals.calculated.toFixed(2), totals.advance.toFixed(2), totals.net.toFixed(2),
+      '', '',
     ]);
     exportCSV(`Krishnam_Salary_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
     await logAudit({ action: 'export_report', table: null, recordId: null, newValue: { format: 'csv', month, year } });

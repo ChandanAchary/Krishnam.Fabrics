@@ -2,7 +2,12 @@
 // In production, regenerate with: `supabase gen types typescript --linked > database.ts`.
 
 export type AppRole = 'admin' | 'manager';
-export type AttendanceStatus = 'present' | 'absent' | 'half_day';
+export type AttendanceStatus =
+  | 'present'
+  | 'absent'
+  | 'half_day'
+  | 'double_duty'
+  | 'one_and_half_duty';
 export type PaymentStatus = 'paid' | 'not_paid';
 export type PaymentMethod = 'online' | 'bank' | 'cash';
 
@@ -37,6 +42,9 @@ export interface MonthlySalary {
   year: number;
   days_present: number;
   half_days_count: number;
+  double_duty_count: number;
+  one_and_half_duty_count: number;
+  absent_count: number;
   effective_days: number;
   daily_wage_used: number;
   calculated_salary: number;
@@ -123,6 +131,8 @@ export interface SaveAttendanceResult {
   present: number;
   absent: number;
   half_day: number;
+  double_duty: number;
+  one_and_half_duty: number;
   month: number;
   year: number;
 }

@@ -70,6 +70,8 @@ export function AttendanceSheetPage() {
           statuses: attByLabourer.get(l.id) ?? {},
           daysPresent: sal?.days_present ?? 0,
           halfDays: sal?.half_days_count ?? 0,
+          doubleDuties: sal?.double_duty_count ?? 0,
+          oneAndHalfDuties: sal?.one_and_half_duty_count ?? 0,
           gross: Number(sal?.calculated_salary ?? 0),
           advance: Number(sal?.advance_deducted ?? 0),
           net: Number(sal?.net_salary ?? 0),
@@ -109,22 +111,31 @@ export function AttendanceSheetPage() {
     const headers = [
       'Labourer', 'Designation', `Daily Wage (${settings.currency_symbol})`,
       ...dayNums.map((d) => String(d)),
-      'Days Present', 'Half Days', `Gross (${settings.currency_symbol})`,
-      `Advance (${settings.currency_symbol})`, `Net (${settings.currency_symbol})`, 'Paid',
+      'Present', 'Half Day', 'Double Duty', '1.5 Duty', 'Absent',
+      `Gross (${settings.currency_symbol})`, `Advance (${settings.currency_symbol})`,
+      `Net Salary (${settings.currency_symbol})`, 'Paid',
     ];
-    const MARK: Record<AttendanceStatus, string> = { present: 'P', absent: 'A', half_day: 'H' };
-    const data = rows.map((r) => [
-      r.name,
-      r.designation ?? '',
-      r.dailyWage.toFixed(2),
-      ...dayNums.map((d) => (r.statuses[d] ? MARK[r.statuses[d]] : '-')),
-      r.daysPresent,
-      r.halfDays,
-      r.gross.toFixed(2),
-      r.advance.toFixed(2),
-      r.net.toFixed(2),
-      r.paid ? 'Yes' : 'No',
-    ]);
+    const MARK: Record<AttendanceStatus, string> = {
+      present: 'P', absent: 'A', half_day: 'H', double_duty: 'DD', one_and_half_duty: '1.5',
+    };
+    const data = rows.map((r) => {
+      const absents = dayNums.reduce((n, d) => n + (r.statuses[d] === 'absent' ? 1 : 0), 0);
+      return [
+        r.name,
+        r.designation ?? '',
+        r.dailyWage.toFixed(2),
+        ...dayNums.map((d) => (r.statuses[d] ? MARK[r.statuses[d]] : '-')),
+        r.daysPresent,
+        r.halfDays,
+        r.doubleDuties,
+        r.oneAndHalfDuties,
+        absents,
+        r.gross.toFixed(2),
+        r.advance.toFixed(2),
+        r.net.toFixed(2),
+        r.paid ? 'Yes' : 'No',
+      ];
+    });
     exportCSV(`Krishnam_AttendanceSheet_${monthName(month).slice(0, 3)}_${year}.csv`, headers, data);
     await logAudit({ action: 'export_report', table: null, newValue: { format: 'csv', kind: 'attendance_sheet', month, year } });
     toast.success('Attendance sheet exported.');
@@ -154,11 +165,13 @@ export function AttendanceSheetPage() {
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
           </Select>
         </div>
-        <div className="mt-3 flex flex-wrap gap-4 text-sm">
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <span className="text-slate-500">Legend:</span>
-          <span className="text-emerald-700 font-medium">P = Present</span>
-          <span className="text-amber-700 font-medium">H = Half day</span>
-          <span className="text-red-700 font-medium">A = Absent</span>
+          <span className="font-medium text-emerald-700">P = Present</span>
+          <span className="font-medium text-amber-700">H = Half day</span>
+          <span className="font-medium text-indigo-700">DD = Double duty (×2)</span>
+          <span className="font-medium text-sky-700">1.5 = 1.5 duty (×1.5)</span>
+          <span className="font-medium text-rose-700">A = Absent</span>
           <span className="text-slate-400">· = No record</span>
         </div>
       </Card>

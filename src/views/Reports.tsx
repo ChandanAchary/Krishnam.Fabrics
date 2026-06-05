@@ -27,6 +27,11 @@ interface MonthSummary {
   unpaid: number;
   unpaidCount: number;
   recordCount: number;
+  present: number;
+  halfDays: number;
+  doubleDuties: number;
+  oneAndHalfDuties: number;
+  absents: number;
 }
 
 export function ReportsPage() {
@@ -51,14 +56,22 @@ export function ReportsPage() {
       for (const m of list) {
         const { data } = await supabase
           .from('monthly_salaries')
-          .select('calculated_salary, payment_status')
+          .select(
+            'calculated_salary, payment_status, days_present, half_days_count, double_duty_count, one_and_half_duty_count, absent_count'
+          )
           .eq('month', m.month)
           .eq('year', m.year);
-        const rows = (data ?? []) as { calculated_salary: number; payment_status: string }[];
-        let total = 0,
-          paid = 0,
-          unpaid = 0,
-          unpaidCount = 0;
+        const rows = (data ?? []) as Array<{
+          calculated_salary: number;
+          payment_status: string;
+          days_present: number;
+          half_days_count: number;
+          double_duty_count: number | null;
+          one_and_half_duty_count: number | null;
+          absent_count: number | null;
+        }>;
+        let total = 0, paid = 0, unpaid = 0, unpaidCount = 0;
+        let present = 0, halfDays = 0, doubleDuties = 0, oneAndHalfDuties = 0, absents = 0;
         rows.forEach((r) => {
           total += Number(r.calculated_salary);
           if (r.payment_status === 'paid') paid += Number(r.calculated_salary);
@@ -66,6 +79,11 @@ export function ReportsPage() {
             unpaid += Number(r.calculated_salary);
             unpaidCount++;
           }
+          present += r.days_present ?? 0;
+          halfDays += r.half_days_count ?? 0;
+          doubleDuties += r.double_duty_count ?? 0;
+          oneAndHalfDuties += r.one_and_half_duty_count ?? 0;
+          absents += r.absent_count ?? 0;
         });
         out.push({
           month: m.month,
@@ -75,6 +93,7 @@ export function ReportsPage() {
           unpaid,
           unpaidCount,
           recordCount: rows.length,
+          present, halfDays, doubleDuties, oneAndHalfDuties, absents,
         });
       }
       if (!cancelled) {
@@ -88,11 +107,20 @@ export function ReportsPage() {
   }, [toast]);
 
   const handleAggregateCSV = () => {
-    const headers = ['Year', 'Month', 'Records', 'Total Calculated', 'Paid', 'Unpaid', 'Unpaid Count'];
+    const headers = [
+      'Year', 'Month', 'Records',
+      'Present', 'Half Day', 'Double Duty', '1.5 Duty', 'Absent',
+      'Total Calculated', 'Paid', 'Unpaid', 'Unpaid Count',
+    ];
     const data = summaries.map((s) => [
       s.year,
       fmtMonthYear(s.month, s.year),
       s.recordCount,
+      s.present,
+      s.halfDays,
+      s.doubleDuties,
+      s.oneAndHalfDuties,
+      s.absents,
       s.total.toFixed(2),
       s.paid.toFixed(2),
       s.unpaid.toFixed(2),

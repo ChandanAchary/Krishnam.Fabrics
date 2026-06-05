@@ -96,6 +96,9 @@ export function SalaryPage() {
     return rows.reduce((acc, r) => {
       acc.daysPresent += r.days_present;
       acc.halfDays += r.half_days_count;
+      acc.doubleDuties += r.double_duty_count ?? 0;
+      acc.oneAndHalfDuties += r.one_and_half_duty_count ?? 0;
+      acc.absents += r.absent_count ?? 0;
       acc.calculated += Number(r.calculated_salary);
       acc.advance += Number(r.advance_deducted);
       acc.net += Number(r.net_salary);
@@ -106,7 +109,10 @@ export function SalaryPage() {
         acc.paidAmount += Number(r.net_salary);
       }
       return acc;
-    }, { daysPresent: 0, halfDays: 0, calculated: 0, advance: 0, net: 0, unpaidAmount: 0, unpaidCount: 0, paidAmount: 0 });
+    }, {
+      daysPresent: 0, halfDays: 0, doubleDuties: 0, oneAndHalfDuties: 0, absents: 0,
+      calculated: 0, advance: 0, net: 0, unpaidAmount: 0, unpaidCount: 0, paidAmount: 0,
+    });
   }, [rows]);
 
   const actions = useSalaryActions(month, year, rows, totals, load);

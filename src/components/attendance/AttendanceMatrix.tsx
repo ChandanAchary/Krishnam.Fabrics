@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { fmtCurrency } from '@/lib/money';
 import { cn } from '@/lib/utils';
+import { STATUS_META } from '@/lib/attendance';
 import type { AttendanceStatus } from '@/types/database';
 
 export interface MatrixRow {
@@ -14,6 +15,8 @@ export interface MatrixRow {
   statuses: Partial<Record<number, AttendanceStatus>>; // day-of-month → status
   daysPresent: number;
   halfDays: number;
+  doubleDuties: number;
+  oneAndHalfDuties: number;
   gross: number;
   advance: number;
   net: number;
@@ -27,12 +30,12 @@ interface Props {
 
 const CELL: Record<AttendanceStatus | 'none', string> = {
   present: 'bg-emerald-100 text-emerald-800',
-  absent: 'bg-red-100 text-red-700',
+  absent: 'bg-rose-100 text-rose-700',
   half_day: 'bg-amber-100 text-amber-800',
+  double_duty: 'bg-indigo-100 text-indigo-800',
+  one_and_half_duty: 'bg-sky-100 text-sky-800',
   none: 'bg-slate-50 text-slate-300',
 };
-
-const MARK: Record<AttendanceStatus, string> = { present: 'P', absent: 'A', half_day: 'H' };
 
 export function AttendanceMatrix({ days, rows }: Props) {
   if (rows.length === 0) {
@@ -72,16 +75,18 @@ export function AttendanceMatrix({ days, rows }: Props) {
                         'inline-flex h-6 w-6 items-center justify-center rounded font-semibold',
                         CELL[status]
                       )}
-                      title={`Day ${d}: ${status === 'none' ? 'No record' : status}`}
+                      title={`Day ${d}: ${status === 'none' ? 'No record' : STATUS_META[status].label}`}
                     >
-                      {status === 'none' ? '·' : MARK[status]}
+                      {status === 'none' ? '·' : STATUS_META[status].code}
                     </span>
                   </td>
                 );
               })}
               <td className="px-3 py-2 text-right font-medium whitespace-nowrap">
                 {r.daysPresent}
-                {r.halfDays > 0 && <span className="text-slate-400"> +{r.halfDays}H</span>}
+                {r.halfDays > 0 && <span className="text-amber-600"> +{r.halfDays}H</span>}
+                {r.doubleDuties > 0 && <span className="text-indigo-600"> +{r.doubleDuties}DD</span>}
+                {r.oneAndHalfDuties > 0 && <span className="text-sky-600"> +{r.oneAndHalfDuties}·1.5</span>}
               </td>
               <td className="px-3 py-2 text-right whitespace-nowrap">{fmtCurrency(r.gross)}</td>
               <td className="px-3 py-2 text-right text-amber-700 whitespace-nowrap">{fmtCurrency(r.advance)}</td>

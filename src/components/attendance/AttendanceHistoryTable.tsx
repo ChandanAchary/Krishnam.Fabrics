@@ -73,9 +73,11 @@ export function AttendanceHistoryTable({
             onChange={(e) => onStatusChange(e.target.value as AttendanceStatus | 'all')}
           >
             <option value="all">All statuses</option>
-            <option value="present">Present</option>
-            <option value="absent">Absent</option>
-            <option value="half_day">Half day</option>
+            <option value="present">Present (P)</option>
+            <option value="absent">Absent (A)</option>
+            <option value="half_day">Half day (H)</option>
+            <option value="double_duty">Double duty (DD)</option>
+            <option value="one_and_half_duty">1.5 duty</option>
           </Select>
         </div>
         <p className="text-xs text-slate-500 mt-3">
