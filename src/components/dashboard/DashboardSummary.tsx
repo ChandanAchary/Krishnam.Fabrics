@@ -32,11 +32,11 @@ export function DashboardSummary({ loading, summary, attendanceTaken }: Props) {
         tone="blue"
       />
       <StatCard
-        label="Present Today"
+        label="Total Present Today"
         value={attendanceTaken ? summary.present_today : '—'}
         hint={
           attendanceTaken
-            ? `${summary.today_recorded_count} records on ${fmtDate(todayISO())}`
+            ? `Includes H, DD & 1.5 · ${summary.today_recorded_count} marked`
             : 'Attendance pending'
         }
         icon={<CalendarCheck className="h-6 w-6" />}

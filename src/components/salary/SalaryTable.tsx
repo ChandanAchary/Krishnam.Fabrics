@@ -22,6 +22,8 @@ interface Props {
   totals: {
     daysPresent: number;
     halfDays: number;
+    doubleDuties: number;
+    oneAndHalfDuties: number;
     calculated: number;
     advance: number;
     net: number;
@@ -49,13 +51,15 @@ export function SalaryTable({
 
   return (
     <div className="overflow-x-auto scroll-touch">
-      <table className="w-full min-w-[900px] text-sm">
+      <table className="w-full min-w-[1040px] text-sm">
         <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
           <tr>
             <th className="text-left px-4 py-3 font-medium">Name</th>
             <th className="text-left px-4 py-3 font-medium">Designation</th>
-            <th className="text-right px-4 py-3 font-medium">Days</th>
-            <th className="text-right px-4 py-3 font-medium">Half</th>
+            <th className="text-right px-4 py-3 font-medium" title="Present">P</th>
+            <th className="text-right px-4 py-3 font-medium" title="Half day">H</th>
+            <th className="text-right px-4 py-3 font-medium" title="Double duty">DD</th>
+            <th className="text-right px-4 py-3 font-medium" title="1.5 duty">1.5</th>
             <th className="text-right px-4 py-3 font-medium">Wage</th>
             <th className="text-right px-4 py-3 font-medium">Gross</th>
             <th className="text-right px-4 py-3 font-medium">Advance</th>
@@ -78,8 +82,10 @@ export function SalaryTable({
                 )}
               </td>
               <td className="px-4 py-3 text-slate-700">{r.labourer?.designation ?? '—'}</td>
-              <td className="px-4 py-3 text-right">{r.days_present}</td>
-              <td className="px-4 py-3 text-right">{r.half_days_count}</td>
+              <td className="px-4 py-3 text-right text-emerald-700">{r.days_present}</td>
+              <td className="px-4 py-3 text-right text-amber-700">{r.half_days_count}</td>
+              <td className="px-4 py-3 text-right text-indigo-700">{r.double_duty_count}</td>
+              <td className="px-4 py-3 text-right text-sky-700">{r.one_and_half_duty_count}</td>
               <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">{fmtCurrency(r.daily_wage_used)}</td>
               <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">{fmtCurrency(r.calculated_salary)}</td>
               <td className="px-4 py-3 text-right text-amber-700 whitespace-nowrap">{fmtCurrency(r.advance_deducted)}</td>
@@ -135,8 +141,10 @@ export function SalaryTable({
         <tfoot className="bg-slate-50 text-sm">
           <tr>
             <td className="px-4 py-3 font-semibold text-slate-900" colSpan={2}>TOTAL</td>
-            <td className="px-4 py-3 text-right font-semibold">{totals.daysPresent}</td>
-            <td className="px-4 py-3 text-right font-semibold">{totals.halfDays}</td>
+            <td className="px-4 py-3 text-right font-semibold text-emerald-700">{totals.daysPresent}</td>
+            <td className="px-4 py-3 text-right font-semibold text-amber-700">{totals.halfDays}</td>
+            <td className="px-4 py-3 text-right font-semibold text-indigo-700">{totals.doubleDuties}</td>
+            <td className="px-4 py-3 text-right font-semibold text-sky-700">{totals.oneAndHalfDuties}</td>
             <td className="px-4 py-3"></td>
             <td className="px-4 py-3 text-right font-bold text-slate-900">{fmtCurrency(totals.calculated)}</td>
             <td className="px-4 py-3 text-right font-semibold text-amber-700">{fmtCurrency(totals.advance)}</td>

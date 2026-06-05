@@ -19,8 +19,10 @@ interface Props {
 
 const STATUS_COLOR: Record<AttendanceStatus | 'none', string> = {
   present: 'bg-emerald-100 border-emerald-300 text-emerald-800',
-  absent: 'bg-red-100 border-red-300 text-red-700',
-  half_day: 'bg-yellow-100 border-yellow-300 text-yellow-800',
+  absent: 'bg-rose-100 border-rose-300 text-rose-700',
+  half_day: 'bg-amber-100 border-amber-300 text-amber-800',
+  double_duty: 'bg-indigo-100 border-indigo-300 text-indigo-800',
+  one_and_half_duty: 'bg-sky-100 border-sky-300 text-sky-800',
   none: 'bg-slate-50 border-slate-200 text-slate-400',
 };
 
@@ -28,6 +30,8 @@ const STATUS_LABEL: Record<AttendanceStatus, string> = {
   present: 'P',
   absent: 'A',
   half_day: 'H',
+  double_duty: 'DD',
+  one_and_half_duty: '1.5',
 };
 
 export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, initialMonth }: Props) {
@@ -52,18 +56,18 @@ export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, init
   const joining = parseDate(joiningDate);
 
   const counts = useMemo(() => {
-    let p = 0,
-      a = 0,
-      h = 0;
+    let p = 0, a = 0, h = 0, dd = 0, oh = 0;
     for (const d of days) {
       const iso = toISODate(d);
       const r = byDate.get(iso);
       if (!r) continue;
       if (r.status === 'present') p++;
       else if (r.status === 'absent') a++;
-      else h++;
+      else if (r.status === 'half_day') h++;
+      else if (r.status === 'double_duty') dd++;
+      else if (r.status === 'one_and_half_duty') oh++;
     }
-    return { p, a, h };
+    return { p, a, h, dd, oh };
   }, [days, byDate]);
 
   // Lay out cells aligned to a Monday-first week grid
@@ -92,8 +96,10 @@ export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, init
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge tone="green">P: {counts.p}</Badge>
+          <Badge tone="amber">H: {counts.h}</Badge>
+          <Badge tone="indigo">DD: {counts.dd}</Badge>
+          <Badge tone="sky">1.5: {counts.oh}</Badge>
           <Badge tone="red">A: {counts.a}</Badge>
-          <Badge tone="yellow">H: {counts.h}</Badge>
         </div>
       </div>
 

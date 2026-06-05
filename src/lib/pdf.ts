@@ -38,13 +38,19 @@ export function generateSalaryPDF(opts: {
     (acc, r) => {
       acc.daysPresent += r.salary.days_present;
       acc.halfDays += r.salary.half_days_count;
+      acc.doubleDuties += r.salary.double_duty_count ?? 0;
+      acc.oneAndHalfDuties += r.salary.one_and_half_duty_count ?? 0;
+      acc.absents += r.salary.absent_count ?? 0;
       acc.gross += Number(r.salary.calculated_salary);
       acc.advance += Number(r.salary.advance_deducted);
       acc.net += Number(r.salary.net_salary);
       if (r.salary.payment_status === 'not_paid') acc.unpaid += Number(r.salary.net_salary);
       return acc;
     },
-    { daysPresent: 0, halfDays: 0, gross: 0, advance: 0, net: 0, unpaid: 0 }
+    {
+      daysPresent: 0, halfDays: 0, doubleDuties: 0, oneAndHalfDuties: 0, absents: 0,
+      gross: 0, advance: 0, net: 0, unpaid: 0,
+    }
   );
 
   const sym = getCurrencySymbol();
@@ -52,8 +58,11 @@ export function generateSalaryPDF(opts: {
   autoTable(doc, {
     startY: 96,
     head: [[
-      '#', 'Labourer', 'Designation', 'Present', 'Half', `Wage (${sym})`,
-      `Gross (${sym})`, `Advance (${sym})`, `Net (${sym})`, 'Status', 'Paid On',
+      '#', 'Labourer', 'Designation',
+      'P', 'H', 'DD', '1.5', 'A',
+      `Wage (${sym})`,
+      `Gross (${sym})`, `Advance (${sym})`, `Final Net (${sym})`,
+      'Status', 'Paid On',
     ]],
     body: rows.map((r, i) => [
       i + 1,
@@ -61,6 +70,9 @@ export function generateSalaryPDF(opts: {
       r.labourer.designation ?? '—',
       r.salary.days_present,
       r.salary.half_days_count,
+      r.salary.double_duty_count ?? 0,
+      r.salary.one_and_half_duty_count ?? 0,
+      r.salary.absent_count ?? 0,
       Number(r.salary.daily_wage_used).toFixed(2),
       Number(r.salary.calculated_salary).toFixed(2),
       Number(r.salary.advance_deducted).toFixed(2),
@@ -72,6 +84,9 @@ export function generateSalaryPDF(opts: {
       { content: 'TOTAL', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
       totals.daysPresent,
       totals.halfDays,
+      totals.doubleDuties,
+      totals.oneAndHalfDuties,
+      totals.absents,
       '',
       { content: totals.gross.toFixed(2), styles: { fontStyle: 'bold' } },
       { content: totals.advance.toFixed(2), styles: { fontStyle: 'bold' } },
@@ -79,16 +94,20 @@ export function generateSalaryPDF(opts: {
       { content: `Unpaid: ${sym}${totals.unpaid.toFixed(2)}`, colSpan: 2, styles: { halign: 'right', textColor: [220, 38, 38] } },
     ]],
     styles: { fontSize: 8, cellPadding: 3 },
-    headStyles: { fillColor: [30, 74, 245], textColor: 255 },
+    // soft brand-600 (#42578d)
+    headStyles: { fillColor: [66, 87, 141], textColor: 255 },
     footStyles: { fillColor: [241, 245, 249], textColor: 30 },
     columnStyles: {
-      0: { halign: 'right', cellWidth: 24 },
+      0: { halign: 'right', cellWidth: 22 },
       3: { halign: 'right' },
       4: { halign: 'right' },
       5: { halign: 'right' },
       6: { halign: 'right' },
       7: { halign: 'right' },
       8: { halign: 'right' },
+      9: { halign: 'right' },
+      10: { halign: 'right' },
+      11: { halign: 'right' },
     },
   });
 

@@ -126,13 +126,15 @@ export function AttendancePage() {
   }, [rows, filter]);
 
   const summary = useMemo(() => {
-    let p = 0, a = 0, h = 0;
+    let p = 0, a = 0, h = 0, dd = 0, oh = 0;
     for (const r of rows) {
       if (r.status === 'present') p++;
       else if (r.status === 'absent') a++;
-      else h++;
+      else if (r.status === 'half_day') h++;
+      else if (r.status === 'double_duty') dd++;
+      else if (r.status === 'one_and_half_duty') oh++;
     }
-    return { p, a, h };
+    return { p, a, h, dd, oh };
   }, [rows]);
 
   const performSave = async (overwrite: boolean) => {
@@ -154,7 +156,7 @@ export function AttendancePage() {
     }
     const result = data as SaveAttendanceResult;
     toast.success(
-      `${result.present} Present, ${result.absent} Absent, ${result.half_day} Half-Day saved for ${fmtDate(date)}.`
+      `${result.present}P · ${result.half_day}H · ${result.double_duty}DD · ${result.one_and_half_duty}·1.5 · ${result.absent}A saved for ${fmtDate(date)}.`
     );
     setOverwriteOpen(false);
     void load();
@@ -172,9 +174,17 @@ export function AttendancePage() {
   return (
     <div>
       <PageHeader
-        title="Take attendance"
-        description="Record Present, Absent or Half-Day for each active labourer."
-      />
+        title="Attendance Management"
+        description={`${fmtDate(date)} · Total labour: ${rows.length}`}
+      >
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 sm:gap-3">
+          <HeroStat label="Present" code="P" value={summary.p} tone="emerald" />
+          <HeroStat label="Half Day" code="H" value={summary.h} tone="amber" />
+          <HeroStat label="Double Duty" code="DD" value={summary.dd} tone="indigo" />
+          <HeroStat label="1.5 Duty" code="1.5" value={summary.oh} tone="sky" />
+          <HeroStat label="Absent" code="A" value={summary.a} tone="rose" />
+        </div>
+      </PageHeader>
 
       <AttendanceControls
         date={date}
@@ -232,6 +242,33 @@ export function AttendancePage() {
         onCancel={() => setOverwriteOpen(false)}
         onConfirm={() => performSave(true)}
       />
+    </div>
+  );
+}
+
+// --- Hero stat chip --------------------------------------------------------
+
+type HeroTone = 'emerald' | 'amber' | 'indigo' | 'sky' | 'rose';
+
+const HERO_TONE: Record<HeroTone, { code: string; bg: string; text: string; border: string }> = {
+  emerald: { code: 'bg-emerald-500 text-white', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' },
+  amber:   { code: 'bg-amber-500 text-white',   bg: 'bg-amber-50',   text: 'text-amber-700',   border: 'border-amber-200' },
+  indigo:  { code: 'bg-indigo-500 text-white',  bg: 'bg-indigo-50',  text: 'text-indigo-700',  border: 'border-indigo-200' },
+  sky:     { code: 'bg-sky-500 text-white',     bg: 'bg-sky-50',     text: 'text-sky-700',     border: 'border-sky-200' },
+  rose:    { code: 'bg-rose-500 text-white',    bg: 'bg-rose-50',    text: 'text-rose-700',    border: 'border-rose-200' },
+};
+
+function HeroStat({ label, code, value, tone }: { label: string; code: string; value: number; tone: HeroTone }) {
+  const t = HERO_TONE[tone];
+  return (
+    <div className={`flex items-center gap-2 rounded-xl border ${t.border} ${t.bg} px-3 py-2`}>
+      <span className={`inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-[11px] font-bold ${t.code}`}>
+        {code}
+      </span>
+      <div className="min-w-0">
+        <p className="text-[11px] uppercase tracking-wide text-slate-500">{label}</p>
+        <p className={`text-lg font-bold leading-tight ${t.text}`}>{value}</p>
+      </div>
     </div>
   );
 }

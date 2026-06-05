@@ -134,50 +134,47 @@ export function LabourersListPage() {
               }
             />
           ) : (
-            <div className="overflow-x-auto scroll-touch">
-              <table className="w-full min-w-[760px] text-sm">
-                <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-                  <tr>
-                    <th className="text-left px-4 py-3 font-medium">Name</th>
-                    <th className="text-left px-4 py-3 font-medium">Designation</th>
-                    <th className="text-left px-4 py-3 font-medium">Phone</th>
-                    <th className="text-right px-4 py-3 font-medium">Daily wage</th>
-                    <th className="text-right px-4 py-3 font-medium">Advance</th>
-                    <th className="text-left px-4 py-3 font-medium">Joining</th>
-                    <th className="text-left px-4 py-3 font-medium">Status</th>
-                    <th className="text-right px-4 py-3 font-medium"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {rows.map((l) => (
-                    <tr key={l.id} className="transition-colors hover:bg-brand-50/40">
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <Link href={`/labourers/${l.id}`} className="font-semibold text-brand-700 hover:text-brand-900 hover:underline">
+            <ul className="divide-y divide-slate-100">
+              {rows.map((l, idx) => (
+                <li key={l.id}>
+                  <Link
+                    href={`/labourers/${l.id}`}
+                    className="flex items-start gap-3 px-4 py-4 transition-colors hover:bg-brand-50/40 sm:gap-4 sm:px-5 sm:py-5"
+                  >
+                    <span
+                      aria-hidden
+                      className="mt-1 inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-50 text-sm font-semibold text-brand-700"
+                    >
+                      {page * PAGE_SIZE + idx + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="truncate text-lg font-bold text-brand-700 sm:text-xl">
                           {l.name}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-slate-700">
-                        {l.designation ? <Badge tone="blue">{l.designation}</Badge> : '—'}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{l.phone ?? '—'}</td>
-                      <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">{fmtCurrency(l.daily_wage)}</td>
-                      <td className="px-4 py-3 text-right text-slate-700 whitespace-nowrap">
-                        {l.advance && l.advance > 0 ? fmtCurrency(l.advance) : '—'}
-                      </td>
-                      <td className="px-4 py-3 text-slate-700 whitespace-nowrap">{fmtDate(l.joining_date)}</td>
-                      <td className="px-4 py-3">
-                        {l.is_active ? <Badge tone="green">Active</Badge> : <Badge tone="slate">Inactive</Badge>}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <Link href={`/labourers/${l.id}`} className="btn-secondary" aria-label={`View ${l.name}`}>
-                          <UserCog className="h-4 w-4" /> View
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        </h3>
+                        {l.is_active ? (
+                          <Badge tone="green">Active</Badge>
+                        ) : (
+                          <Badge tone="slate">Inactive</Badge>
+                        )}
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-slate-600">
+                        {l.designation && <Badge tone="blue">{l.designation}</Badge>}
+                        {l.phone && <span>{l.phone}</span>}
+                        <span className="font-semibold text-slate-800">
+                          {fmtCurrency(l.daily_wage)}<span className="text-slate-400 font-normal"> /day</span>
+                        </span>
+                        {l.advance && l.advance > 0 ? (
+                          <span className="text-amber-700">Adv {fmtCurrency(l.advance)}</span>
+                        ) : null}
+                        <span className="text-xs text-slate-400">Joined {fmtDate(l.joining_date)}</span>
+                      </div>
+                    </div>
+                    <UserCog className="mt-1.5 h-5 w-5 flex-shrink-0 text-slate-400" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
 

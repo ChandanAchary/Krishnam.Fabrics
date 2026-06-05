@@ -57,9 +57,11 @@ export function EditAttendanceModal({ open, date, current, onClose, onSave, busy
           </div>
         )}
         <Select label="New status" value={status} onChange={(e) => setStatus(e.target.value as AttendanceStatus)}>
-          <option value="present">Present</option>
-          <option value="absent">Absent</option>
-          <option value="half_day">Half day</option>
+          <option value="present">Present (P) — ×1</option>
+          <option value="absent">Absent (A) — ×0</option>
+          <option value="half_day">Half day (H) — ×0.5</option>
+          <option value="double_duty">Double duty (DD) — ×2</option>
+          <option value="one_and_half_duty">1.5 duty — ×1.5</option>
         </Select>
         <Input
           label="Reason (optional)"

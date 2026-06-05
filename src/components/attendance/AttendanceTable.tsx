@@ -19,6 +19,10 @@ interface Props {
   onStatusChange: (labourerId: string, status: AttendanceStatus) => void;
 }
 
+/**
+ * Card list of attendance rows. No table / no horizontal scroll — each row is
+ * a self-contained card with the labourer's info and 5 circular selectors.
+ */
 export function AttendanceTable({ loading, rows, totalRows, disabled, onStatusChange }: Props) {
   if (loading) {
     return (
@@ -35,31 +39,27 @@ export function AttendanceTable({ loading, rows, totalRows, disabled, onStatusCh
       />
     );
   }
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        title="No matches"
+        description="No labourer matches your search."
+      />
+    );
+  }
   return (
-    <div className="overflow-x-auto scroll-touch">
-      <table className="w-full text-sm">
-        <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-          <tr>
-            <th className="text-left px-4 py-3 font-medium w-12">#</th>
-            <th className="text-left px-4 py-3 font-medium">Name</th>
-            <th className="text-right px-4 py-3 font-medium">Wage</th>
-            <th className="text-center px-4 py-3 font-medium">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {rows.map((r, i) => (
-            <AttendanceRow
-              key={r.labourer.id}
-              index={i}
-              labourer={r.labourer}
-              status={r.status}
-              previouslyRecorded={r.existing}
-              disabled={disabled}
-              onChange={(s) => onStatusChange(r.labourer.id, s)}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <ul className="space-y-2 p-3 sm:p-4">
+      {rows.map((r, i) => (
+        <AttendanceRow
+          key={r.labourer.id}
+          index={i}
+          labourer={r.labourer}
+          status={r.status}
+          previouslyRecorded={r.existing}
+          disabled={disabled}
+          onChange={(s) => onStatusChange(r.labourer.id, s)}
+        />
+      ))}
+    </ul>
   );
 }

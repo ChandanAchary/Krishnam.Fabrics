@@ -14,7 +14,7 @@ interface Props {
   isFuture: boolean;
   lock: MonthLock | null;
   filter: string;
-  summary: { p: number; a: number; h: number };
+  summary: { p: number; a: number; h: number; dd: number; oh: number };
   onDateChange: (v: string) => void;
   onFilterChange: (v: string) => void;
   onMarkAll: (status: AttendanceStatus) => void;
@@ -61,8 +61,10 @@ export function AttendanceControls({
       )}
       <div className="mt-3 flex flex-wrap gap-2">
         <Badge tone="green">{summary.p} Present</Badge>
+        <Badge tone="amber">{summary.h} Half-Day</Badge>
+        <Badge tone="indigo">{summary.dd} Double Duty</Badge>
+        <Badge tone="sky">{summary.oh} 1.5 Duty</Badge>
         <Badge tone="red">{summary.a} Absent</Badge>
-        <Badge tone="yellow">{summary.h} Half-Day</Badge>
       </div>
     </Card>
   );
