@@ -164,9 +164,6 @@ export function LabourersListPage() {
                         <span className="font-semibold text-slate-800">
                           {fmtCurrency(l.daily_wage)}<span className="text-slate-400 font-normal"> /day</span>
                         </span>
-                        {l.advance && l.advance > 0 ? (
-                          <span className="text-amber-700">Adv {fmtCurrency(l.advance)}</span>
-                        ) : null}
                         <span className="text-xs text-slate-400">Joined {fmtDate(l.joining_date)}</span>
                       </div>
                     </div>

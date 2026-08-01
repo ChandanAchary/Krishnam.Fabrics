@@ -25,6 +25,17 @@ export interface Labourer {
   created_by: string | null;
 }
 
+export interface LabourerAdvance {
+  id: string;
+  labourer_id: string;
+  given_on: string;
+  amount: number;
+  note: string | null;
+  recorded_by: string | null;
+  recorded_at: string;
+  created_at: string;
+}
+
 export interface AttendanceRecord {
   id: string;
   labourer_id: string;

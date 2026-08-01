@@ -16,15 +16,18 @@ import { LabourerForm } from '@/components/labourers/LabourerForm';
 import { ProfileCard } from '@/components/labourers/ProfileCard';
 import { SalaryHistoryTable } from '@/components/labourers/SalaryHistoryTable';
 import { WageChangeModal } from '@/components/labourers/WageChangeModal';
+import { AdvanceHistoryTable } from '@/components/labourers/AdvanceHistoryTable';
+import { RecordAdvanceModal } from '@/components/labourers/RecordAdvanceModal';
 import { AttendanceCalendar } from '@/components/attendance/AttendanceCalendar';
 import { AttendanceHistoryTable } from '@/components/attendance/AttendanceHistoryTable';
 import { EditAttendanceModal } from '@/components/attendance/EditAttendanceModal';
 import { useLabourerEdit } from '@/hooks/useLabourerEdit';
 import { useAttendanceActions } from '@/hooks/useAttendanceActions';
+import { useAdvanceActions } from '@/hooks/useAdvanceActions';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
-import type { AttendanceRecord, AttendanceStatus, Labourer, MonthlySalary } from '@/types/database';
+import type { AttendanceRecord, AttendanceStatus, Labourer, LabourerAdvance, MonthlySalary } from '@/types/database';
 
 export function LabourerProfilePage() {
   const params = useParams<{ id: string }>();
@@ -36,6 +39,7 @@ export function LabourerProfilePage() {
   const [labourer, setLabourer] = useState<Labourer | null>(null);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [salaries, setSalaries] = useState<MonthlySalary[]>([]);
+  const [advances, setAdvances] = useState<LabourerAdvance[]>([]);
   const [loading, setLoading] = useState(true);
 
   // History filter state
@@ -46,7 +50,7 @@ export function LabourerProfilePage() {
   const load = async () => {
     if (!id) return;
     setLoading(true);
-    const [lab, att, sal] = await Promise.all([
+    const [lab, att, sal, adv] = await Promise.all([
       supabase.from('labourers').select('*').eq('id', id).single(),
       supabase.from('attendance').select('*').eq('labourer_id', id).order('date', { ascending: false }),
       supabase
@@ -55,11 +59,14 @@ export function LabourerProfilePage() {
         .eq('labourer_id', id)
         .order('year', { ascending: false })
         .order('month', { ascending: false }),
+      supabase.from('labourer_advances').select('*').eq('labourer_id', id).order('given_on', { ascending: false }),
     ]);
     if (lab.error) toast.error(`Could not load: ${lab.error.message}`);
+    if (adv.error) toast.error(`Could not load advance history: ${adv.error.message}`);
     setLabourer((lab.data as Labourer) ?? null);
     setAttendance((att.data as AttendanceRecord[]) ?? []);
     setSalaries((sal.data as MonthlySalary[]) ?? []);
+    setAdvances((adv.data as LabourerAdvance[]) ?? []);
     setLoading(false);
   };
 
@@ -70,6 +77,7 @@ export function LabourerProfilePage() {
 
   const edit = useLabourerEdit(labourer, load, () => router.push('/labourers'));
   const att = useAttendanceActions(labourer, load);
+  const adv = useAdvanceActions(labourer, load);
 
   const currentMonthSalary = useMemo(() => (salaries.length ? salaries[0] : null), [salaries]);
 
@@ -180,6 +188,15 @@ export function LabourerProfilePage() {
 
       <SalaryHistoryTable salaries={salaries} />
 
+      <div className="mt-6">
+        <AdvanceHistoryTable
+          advances={advances}
+          isAdmin={isAdmin}
+          onRecordAdvance={() => adv.setRecordOpen(true)}
+          onDelete={(a) => adv.setDeleteAdvance({ open: true, advance: a, reason: '' })}
+        />
+      </div>
+
       <Drawer
         open={edit.editOpen}
         onClose={() => edit.setEditOpen(false)}
@@ -192,7 +209,6 @@ export function LabourerProfilePage() {
             phone: labourer.phone ?? '',
             designation: labourer.designation ?? '',
             daily_wage: Number(labourer.daily_wage),
-            advance: Number(labourer.advance ?? 0),
             joining_date: labourer.joining_date,
             is_active: labourer.is_active,
           }}
@@ -263,6 +279,25 @@ export function LabourerProfilePage() {
         onReasonChange={(v) => att.setDeleteAttendance({ ...att.deleteAttendance, reason: v })}
         onCancel={() => att.setDeleteAttendance({ open: false, reason: '' })}
         onConfirm={att.handleDeleteAttendance}
+      />
+
+      <RecordAdvanceModal
+        open={adv.recordOpen}
+        busy={adv.recording}
+        onCancel={() => adv.setRecordOpen(false)}
+        onSubmit={adv.handleRecordAdvance}
+      />
+
+      <DeleteWithReasonModal
+        open={adv.deleteAdvance.open}
+        title="Delete advance record?"
+        description="This permanently removes the advance entry and recalculates that month's salary. The old value is captured in the audit log."
+        reason={adv.deleteAdvance.reason}
+        minLength={0}
+        busy={adv.deleting}
+        onReasonChange={(v) => adv.setDeleteAdvance({ ...adv.deleteAdvance, reason: v })}
+        onCancel={() => adv.setDeleteAdvance({ open: false, reason: '' })}
+        onConfirm={adv.handleDeleteAdvance}
       />
     </div>
   );

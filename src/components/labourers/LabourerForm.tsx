@@ -42,11 +42,6 @@ export const labourerFormSchema = z.object({
     .number({ invalid_type_error: 'Wage is required' })
     .min(1, 'Minimum wage is 1')
     .max(99999.99, 'Maximum wage is 99,999.99'),
-  advance: z
-    .number({ invalid_type_error: 'Advance must be a number' })
-    .min(0, 'Advance cannot be negative')
-    .max(9999999.99, 'Advance is too large')
-    .default(0),
   joining_date: z
     .string()
     .min(1, 'Joining date is required')
@@ -83,7 +78,6 @@ export function LabourerForm({
       phone: defaultValues?.phone ?? '',
       designation: defaultValues?.designation ?? '',
       daily_wage: defaultValues?.daily_wage ?? 400,
-      advance: defaultValues?.advance ?? 0,
       joining_date: defaultValues?.joining_date ?? todayISO(),
       is_active: defaultValues?.is_active ?? true,
     },
@@ -125,7 +119,7 @@ export function LabourerForm({
           )}
         />
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
           label="Daily wage"
           type="number"
@@ -136,16 +130,6 @@ export function LabourerForm({
           placeholder="400.00"
           error={errors.daily_wage?.message}
           {...register('daily_wage', { valueAsNumber: true })}
-        />
-        <Input
-          label="Advance (optional)"
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          hint="Deducted from gross to compute net salary."
-          error={errors.advance?.message}
-          {...register('advance', { valueAsNumber: true })}
         />
         <Input
           label="Joining date"

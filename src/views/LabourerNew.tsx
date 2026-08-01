@@ -32,7 +32,6 @@ export function LabourerNewPage() {
         phone: values.phone?.trim() || null,
         designation: values.designation,
         daily_wage: values.daily_wage,
-        advance: values.advance ?? 0,
         joining_date: values.joining_date,
         is_active: true,
       })
