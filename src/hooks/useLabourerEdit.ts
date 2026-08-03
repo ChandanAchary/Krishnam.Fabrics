@@ -54,15 +54,6 @@ export function useLabourerEdit(labourer: Labourer | null, onChanged: () => void
         joining_date: values.joining_date,
       },
     });
-
-    // Advance change: persist + recalc current month net via RPC (BR-aligned).
-    if (Number(values.advance ?? 0) !== Number(labourer.advance)) {
-      const { error: advErr } = await supabase.rpc('change_advance', {
-        p_labourer_id: labourer.id,
-        p_new_advance: values.advance ?? 0,
-      });
-      if (advErr) return { ok: false, error: advErr.message };
-    }
     return { ok: true, error: null };
   };
 

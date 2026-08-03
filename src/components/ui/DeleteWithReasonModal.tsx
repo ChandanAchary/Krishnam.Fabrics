@@ -38,9 +38,9 @@ export function DeleteWithReasonModal({
     >
       <Input
         label="Reason"
-        required
-        placeholder={`Minimum ${minLength} characters.`}
-        hint={`${reason.length}/${minLength} minimum`}
+        required={minLength > 0}
+        placeholder={minLength > 0 ? `Minimum ${minLength} characters.` : 'Optional'}
+        hint={minLength > 0 ? `${reason.length}/${minLength} minimum` : 'Optional — recorded in the audit log if provided.'}
         value={reason}
         onChange={(e) => onReasonChange(e.target.value)}
       />

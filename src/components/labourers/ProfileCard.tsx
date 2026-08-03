@@ -34,9 +34,11 @@ export function ProfileCard({ labourer, currentMonthSalary }: Props) {
         </div>
         <div className="flex items-center gap-3">
           <Coins className="h-4 w-4 text-slate-400" />
-          <span className="text-slate-500">Advance</span>
+          <span className="text-slate-500">This month&apos;s advance</span>
           <span className="ml-auto font-medium text-slate-900">
-            {labourer.advance && labourer.advance > 0 ? fmtCurrency(labourer.advance) : 'No advance'}
+            {currentMonthSalary && currentMonthSalary.advance_deducted > 0
+              ? fmtCurrency(currentMonthSalary.advance_deducted)
+              : 'None'}
           </span>
         </div>
         <div className="flex items-center gap-3">
