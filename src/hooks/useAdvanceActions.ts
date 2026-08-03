@@ -8,30 +8,45 @@ import type { Labourer, LabourerAdvance } from '@/types/database';
 export function useAdvanceActions(labourer: Labourer | null, onChanged: () => void) {
   const toast = useToast();
 
-  const [recordOpen, setRecordOpen] = useState(false);
-  const [recording, setRecording] = useState(false);
+  const [modal, setModal] = useState<{ open: boolean; mode: 'create' | 'edit'; advance?: LabourerAdvance }>({
+    open: false,
+    mode: 'create',
+  });
+  const [saving, setSaving] = useState(false);
   const [deleteAdvance, setDeleteAdvance] = useState<{ open: boolean; advance?: LabourerAdvance; reason: string }>({
     open: false,
     reason: '',
   });
   const [deleting, setDeleting] = useState(false);
 
-  const handleRecordAdvance = async (values: { given_on: string; amount: number; note: string }) => {
+  const openRecord = () => setModal({ open: true, mode: 'create' });
+  const openEdit = (advance: LabourerAdvance) => setModal({ open: true, mode: 'edit', advance });
+  const closeModal = () => setModal({ open: false, mode: 'create' });
+
+  const handleSubmit = async (values: { given_on: string; amount: number; note: string }) => {
     if (!labourer) return;
-    setRecording(true);
-    const { error } = await supabase.rpc('record_labourer_advance', {
-      p_labourer_id: labourer.id,
-      p_given_on: values.given_on,
-      p_amount: values.amount,
-      p_note: values.note || null,
-    });
-    setRecording(false);
+    setSaving(true);
+    const { error } =
+      modal.mode === 'edit' && modal.advance
+        ? await supabase.rpc('edit_labourer_advance', {
+            p_advance_id: modal.advance.id,
+            p_given_on: values.given_on,
+            p_amount: values.amount,
+            p_note: values.note || null,
+          })
+        : await supabase.rpc('record_labourer_advance', {
+            p_labourer_id: labourer.id,
+            p_given_on: values.given_on,
+            p_amount: values.amount,
+            p_note: values.note || null,
+          });
+    setSaving(false);
     if (error) {
-      toast.error(`Could not record advance: ${error.message}`);
+      toast.error(`Could not save advance: ${error.message}`);
       return;
     }
-    toast.success('Advance recorded.');
-    setRecordOpen(false);
+    toast.success(modal.mode === 'edit' ? 'Advance updated.' : 'Advance recorded.');
+    closeModal();
     onChanged();
   };
 
@@ -53,10 +68,12 @@ export function useAdvanceActions(labourer: Labourer | null, onChanged: () => vo
   };
 
   return {
-    recordOpen,
-    setRecordOpen,
-    recording,
-    handleRecordAdvance,
+    modal,
+    openRecord,
+    openEdit,
+    closeModal,
+    saving,
+    handleSubmit,
     deleteAdvance,
     setDeleteAdvance,
     deleting,

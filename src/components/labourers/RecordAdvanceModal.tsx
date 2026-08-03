@@ -6,14 +6,22 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { todayISO } from '@/lib/date';
 
+interface InitialValues {
+  given_on: string;
+  amount: number;
+  note: string;
+}
+
 interface Props {
   open: boolean;
+  mode?: 'create' | 'edit';
+  initialValues?: InitialValues;
   busy?: boolean;
   onCancel: () => void;
   onSubmit: (values: { given_on: string; amount: number; note: string }) => void | Promise<void>;
 }
 
-export function RecordAdvanceModal({ open, busy, onCancel, onSubmit }: Props) {
+export function RecordAdvanceModal({ open, mode = 'create', initialValues, busy, onCancel, onSubmit }: Props) {
   const [givenOn, setGivenOn] = useState(todayISO());
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
@@ -21,11 +29,12 @@ export function RecordAdvanceModal({ open, busy, onCancel, onSubmit }: Props) {
 
   useEffect(() => {
     if (open) {
-      setGivenOn(todayISO());
-      setAmount('');
-      setNote('');
+      setGivenOn(initialValues?.given_on ?? todayISO());
+      setAmount(initialValues ? String(initialValues.amount) : '');
+      setNote(initialValues?.note ?? '');
       setError(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleConfirm = () => {
@@ -42,11 +51,13 @@ export function RecordAdvanceModal({ open, busy, onCancel, onSubmit }: Props) {
     void onSubmit({ given_on: givenOn, amount: amt, note: note.trim() });
   };
 
+  const isEdit = mode === 'edit';
+
   return (
     <Modal
       open={open}
       onClose={onCancel}
-      title="Record an advance"
+      title={isEdit ? 'Edit advance' : 'Record an advance'}
       description="Deducted from that month's salary only — not carried into other months."
       footer={
         <div className="flex justify-end gap-2">
@@ -54,7 +65,7 @@ export function RecordAdvanceModal({ open, busy, onCancel, onSubmit }: Props) {
             Cancel
           </Button>
           <Button variant="primary" loading={busy} onClick={handleConfirm}>
-            Record advance
+            {isEdit ? 'Save changes' : 'Record advance'}
           </Button>
         </div>
       }

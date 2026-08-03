@@ -34,6 +34,9 @@ export interface LabourerAdvance {
   recorded_by: string | null;
   recorded_at: string;
   created_at: string;
+  is_carry_forward: boolean;
+  source_month: number | null;
+  source_year: number | null;
 }
 
 export interface AttendanceRecord {
