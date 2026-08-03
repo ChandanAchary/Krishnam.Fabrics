@@ -88,7 +88,7 @@ export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, init
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setCursor((c) => subMonths(c, 1))} aria-label="Previous month">
             <ChevronLeft className="h-4 w-4" />

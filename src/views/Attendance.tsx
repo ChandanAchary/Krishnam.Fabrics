@@ -216,8 +216,8 @@ export function AttendancePage() {
 
       {!loading && rows.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-4 z-10 lg:left-64">
-          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-            <p className="text-sm text-slate-700">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            <p className="min-w-0 flex-1 text-sm text-slate-700">
               Saving for <span className="font-semibold">{fmtDate(date)}</span> — {rows.length} record
               {rows.length === 1 ? '' : 's'}
             </p>
@@ -227,6 +227,7 @@ export function AttendancePage() {
               disabled={isFuture || Boolean(lock)}
               onClick={handleSave}
               leftIcon={<Save className="h-4 w-4" />}
+              className="shrink-0"
             >
               Save attendance
             </Button>
