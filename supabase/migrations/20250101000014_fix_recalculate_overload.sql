@@ -1,0 +1,25 @@
+-- =============================================================================
+-- Krishnam HRMS — Fix duplicate recalculate_monthly_salary() overload
+-- =============================================================================
+-- Migration 20250101000013 added a 6th parameter (p_apply_carry_forward) to
+-- recalculate_monthly_salary() via CREATE OR REPLACE. Postgres identifies a
+-- function by its (name, parameter-type-list) — changing the parameter COUNT
+-- does not replace the existing function, it registers a second, separate
+-- overload. That left two versions coexisting:
+--   recalculate_monthly_salary(uuid, smallint, smallint, text, boolean)          -- old, 5-arg
+--   recalculate_monthly_salary(uuid, smallint, smallint, text, boolean, boolean) -- new, 6-arg
+--
+-- Every existing caller (the attendance trigger, change_daily_wage,
+-- record_labourer_advance, admin_delete_advance, edit_labourer_advance,
+-- recalculate_month_for_all) invokes it with exactly 5 arguments. Since the
+-- 6-arg version's 6th parameter has a default, a 5-arg call matches BOTH
+-- overloads — Postgres can't pick one, so every such call fails with
+-- "function ... is not unique". Because attendance writes fire this on every
+-- save via trg_attendance_recalc, this broke attendance save/edit entirely.
+--
+-- Fix: drop the stale 5-arg overload. The 6-arg version (whose extra
+-- parameter defaults to TRUE) is a strict superset of the old behavior for
+-- every existing call site, so nothing else needs to change.
+-- =============================================================================
+
+DROP FUNCTION IF EXISTS public.recalculate_monthly_salary(UUID, SMALLINT, SMALLINT, TEXT, BOOLEAN);
