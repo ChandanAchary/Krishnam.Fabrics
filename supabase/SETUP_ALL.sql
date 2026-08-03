@@ -2960,7 +2960,7 @@ BEGIN
       IF v_next_locked THEN
         RAISE EXCEPTION
           'Month %-% would end with a negative net salary that must carry forward into %-%, but %-% is locked. Unlock %-% first.',
-          p_year, p_month, v_next_year, v_next_month, v_next_year, v_next_month
+          p_year, p_month, v_next_year, v_next_month, v_next_year, v_next_month, v_next_year, v_next_month
           USING ERRCODE = 'P0001';
       END IF;
 
