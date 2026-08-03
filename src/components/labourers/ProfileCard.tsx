@@ -57,9 +57,9 @@ export function ProfileCard({ labourer, currentMonthSalary, monthLabel }: Props)
         </div>
       </dl>
       {currentMonthSalary ? (
-        <div className="mt-4 pt-4 border-t border-slate-100">
-          {monthLabel && <p className="mb-2 text-xs font-medium text-slate-400">{monthLabel}</p>}
-          <div className="grid grid-cols-4 gap-2 text-center">
+        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+          {monthLabel && <p className="text-xs font-medium text-slate-400">{monthLabel}</p>}
+          <div className="grid grid-cols-2 gap-2 text-center">
             <div>
               <p className="text-xs text-slate-500">Days</p>
               <p className="font-semibold text-slate-900">{currentMonthSalary.days_present}</p>
@@ -68,16 +68,24 @@ export function ProfileCard({ labourer, currentMonthSalary, monthLabel }: Props)
               <p className="text-xs text-slate-500">Half</p>
               <p className="font-semibold text-slate-900">{currentMonthSalary.half_days_count}</p>
             </div>
-            <div>
-              <p className="text-xs text-slate-500">Gross</p>
-              <p className="font-semibold text-slate-900">{fmtCurrency(currentMonthSalary.calculated_salary)}</p>
-            </div>
-            <div>
-              <p className="text-xs text-slate-500">Net</p>
-              <p className={currentMonthSalary.net_salary < 0 ? 'font-semibold text-red-600' : 'font-semibold text-slate-900'}>
-                {fmtCurrency(currentMonthSalary.net_salary)}
-              </p>
-            </div>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-slate-500 shrink-0">Gross</span>
+            <span className="ml-auto min-w-0 truncate font-medium text-slate-900">
+              {fmtCurrency(currentMonthSalary.calculated_salary)}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-slate-500 shrink-0">Net</span>
+            <span
+              className={
+                currentMonthSalary.net_salary < 0
+                  ? 'ml-auto min-w-0 truncate font-semibold text-red-600'
+                  : 'ml-auto min-w-0 truncate font-medium text-slate-900'
+              }
+            >
+              {fmtCurrency(currentMonthSalary.net_salary)}
+            </span>
           </div>
         </div>
       ) : (
