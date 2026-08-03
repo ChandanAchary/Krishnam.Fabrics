@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -15,6 +15,7 @@ interface Props {
   isAdmin: boolean;
   onEdit?: (date: string, current?: AttendanceRecord) => void;
   initialMonth?: { year: number; month: number };
+  onMonthChange?: (year: number, month: number) => void;
 }
 
 const STATUS_COLOR: Record<AttendanceStatus | 'none', string> = {
@@ -34,13 +35,18 @@ const STATUS_LABEL: Record<AttendanceStatus, string> = {
   one_and_half_duty: '1.5',
 };
 
-export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, initialMonth }: Props) {
+export function AttendanceCalendar({ records, joiningDate, isAdmin, onEdit, initialMonth, onMonthChange }: Props) {
   const now = new Date();
   const [cursor, setCursor] = useState<Date>(
     initialMonth
       ? new Date(initialMonth.year, initialMonth.month - 1, 1)
       : new Date(now.getFullYear(), now.getMonth(), 1)
   );
+
+  useEffect(() => {
+    onMonthChange?.(cursor.getFullYear(), cursor.getMonth() + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cursor]);
 
   const days = useMemo(
     () => daysInCalendarMonth(cursor.getFullYear(), cursor.getMonth() + 1),

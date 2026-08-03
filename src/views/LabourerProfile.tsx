@@ -25,6 +25,7 @@ import { useLabourerEdit } from '@/hooks/useLabourerEdit';
 import { useAttendanceActions } from '@/hooks/useAttendanceActions';
 import { useAdvanceActions } from '@/hooks/useAdvanceActions';
 import { supabase } from '@/lib/supabase';
+import { fmtMonthYear } from '@/lib/date';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import type { AttendanceRecord, AttendanceStatus, Labourer, LabourerAdvance, MonthlySalary } from '@/types/database';
@@ -79,7 +80,15 @@ export function LabourerProfilePage() {
   const att = useAttendanceActions(labourer, load);
   const adv = useAdvanceActions(labourer, load);
 
-  const currentMonthSalary = useMemo(() => (salaries.length ? salaries[0] : null), [salaries]);
+  const now = new Date();
+  const [profileMonth, setProfileMonth] = useState<{ year: number; month: number }>({
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  });
+  const selectedMonthSalary = useMemo(
+    () => salaries.find((s) => s.year === profileMonth.year && s.month === profileMonth.month) ?? null,
+    [salaries, profileMonth]
+  );
 
   if (loading) {
     return (
@@ -158,7 +167,7 @@ export function LabourerProfilePage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        <ProfileCard labourer={labourer} currentMonthSalary={currentMonthSalary} />
+        <ProfileCard labourer={labourer} currentMonthSalary={selectedMonthSalary} monthLabel={fmtMonthYear(profileMonth.month, profileMonth.year)} />
         <Card className="lg:col-span-2">
           <CardHeader
             title="Attendance calendar"
@@ -169,6 +178,7 @@ export function LabourerProfilePage() {
             joiningDate={labourer.joining_date}
             isAdmin={isAdmin}
             onEdit={att.openEditAttendance}
+            onMonthChange={(year, month) => setProfileMonth({ year, month })}
           />
         </Card>
       </div>
@@ -192,7 +202,8 @@ export function LabourerProfilePage() {
         <AdvanceHistoryTable
           advances={advances}
           isAdmin={isAdmin}
-          onRecordAdvance={() => adv.setRecordOpen(true)}
+          onRecordAdvance={adv.openRecord}
+          onEdit={adv.openEdit}
           onDelete={(a) => adv.setDeleteAdvance({ open: true, advance: a, reason: '' })}
         />
       </div>
@@ -282,10 +293,16 @@ export function LabourerProfilePage() {
       />
 
       <RecordAdvanceModal
-        open={adv.recordOpen}
-        busy={adv.recording}
-        onCancel={() => adv.setRecordOpen(false)}
-        onSubmit={adv.handleRecordAdvance}
+        open={adv.modal.open}
+        mode={adv.modal.mode}
+        initialValues={
+          adv.modal.advance
+            ? { given_on: adv.modal.advance.given_on, amount: Number(adv.modal.advance.amount), note: adv.modal.advance.note ?? '' }
+            : undefined
+        }
+        busy={adv.saving}
+        onCancel={adv.closeModal}
+        onSubmit={adv.handleSubmit}
       />
 
       <DeleteWithReasonModal

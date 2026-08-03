@@ -10,9 +10,11 @@ import type { Labourer, MonthlySalary } from '@/types/database';
 interface Props {
   labourer: Labourer;
   currentMonthSalary: MonthlySalary | null;
+  /** Human-readable label (e.g. "Aug 2026") for whichever month currentMonthSalary reflects. */
+  monthLabel?: string;
 }
 
-export function ProfileCard({ labourer, currentMonthSalary }: Props) {
+export function ProfileCard({ labourer, currentMonthSalary, monthLabel }: Props) {
   return (
     <Card>
       <CardHeader title="Profile" />
@@ -34,7 +36,7 @@ export function ProfileCard({ labourer, currentMonthSalary }: Props) {
         </div>
         <div className="flex items-center gap-3">
           <Coins className="h-4 w-4 text-slate-400" />
-          <span className="text-slate-500">This month&apos;s advance</span>
+          <span className="text-slate-500">{monthLabel ? `${monthLabel} advance` : "This month's advance"}</span>
           <span className="ml-auto font-medium text-slate-900">
             {currentMonthSalary && currentMonthSalary.advance_deducted > 0
               ? fmtCurrency(currentMonthSalary.advance_deducted)
@@ -54,21 +56,36 @@ export function ProfileCard({ labourer, currentMonthSalary }: Props) {
           </span>
         </div>
       </dl>
-      {currentMonthSalary && (
-        <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-2 text-center">
-          <div>
-            <p className="text-xs text-slate-500">Days</p>
-            <p className="font-semibold text-slate-900">{currentMonthSalary.days_present}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">Half</p>
-            <p className="font-semibold text-slate-900">{currentMonthSalary.half_days_count}</p>
-          </div>
-          <div>
-            <p className="text-xs text-slate-500">Salary</p>
-            <p className="font-semibold text-slate-900">{fmtCurrency(currentMonthSalary.calculated_salary)}</p>
+      {currentMonthSalary ? (
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          {monthLabel && <p className="mb-2 text-xs font-medium text-slate-400">{monthLabel}</p>}
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <div>
+              <p className="text-xs text-slate-500">Days</p>
+              <p className="font-semibold text-slate-900">{currentMonthSalary.days_present}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Half</p>
+              <p className="font-semibold text-slate-900">{currentMonthSalary.half_days_count}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Gross</p>
+              <p className="font-semibold text-slate-900">{fmtCurrency(currentMonthSalary.calculated_salary)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Net</p>
+              <p className={currentMonthSalary.net_salary < 0 ? 'font-semibold text-red-600' : 'font-semibold text-slate-900'}>
+                {fmtCurrency(currentMonthSalary.net_salary)}
+              </p>
+            </div>
           </div>
         </div>
+      ) : (
+        monthLabel && (
+          <div className="mt-4 pt-4 border-t border-slate-100 text-center text-xs text-slate-400">
+            No salary record for {monthLabel}
+          </div>
+        )
       )}
     </Card>
   );
